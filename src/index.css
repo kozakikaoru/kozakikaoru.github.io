@@ -1,0 +1,208 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   花畑 × デジタルの光 — テーマトークン
+   Tailwind v4 の @theme でデザイントークンを定義する。
+   ============================================================ */
+@theme {
+  /* ブランドカラー: 自然(花畑) × テクノロジー(ネオン) */
+  --color-bloom-white: #fdfdfb; /* マーガレットの花びら */
+  --color-bloom-cream: #fef9ec; /* 花芯のクリーム */
+  --color-leaf: #7bb661; /* 葉の緑 */
+  --color-leaf-deep: #3f7d4f; /* 深い葉 */
+  --color-sky: #8ecae6; /* 昼の空 */
+  --color-dusk: #f4a261; /* 夕方 */
+  --color-night: #1b2a4a; /* 夜 */
+
+  /* ネオン(デジタルの光)= サイバーパンク配色(P2・panels.ts の accent と揃える)。
+     緑は廃止。cyan=services / magenta=about / glow(明るいシアン)は汎用グロー。 */
+  --color-neon-cyan: #05d9e8; /* エレクトリックシアン(services) */
+  --color-neon-magenta: #ff2d9c; /* マゼンタ/ピンク(about) */
+  --color-neon-glow: #7ff3ff; /* 明るいシアン(text-glow 等の汎用) */
+
+  /* フォント */
+  --font-sans:
+    'Zen Kaku Gothic New', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans JP', 'Yu Gothic', system-ui, sans-serif;
+  --font-display: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', var(--font-sans);
+
+  /* アニメーション */
+  --animate-float-slow: floatSlow 7s ease-in-out infinite;
+  --animate-shimmer: shimmer 3s linear infinite;
+  --animate-fade-up: fadeUp 0.8s ease-out both;
+}
+
+/* ============================================================
+   詳細ページ見出し(PageShell h1)用ディスプレイ体
+   極太の Dela Gothic One を自己ホスト(Google Fonts の text= サブセット woff2)。
+   見出しに使う文字だけを含む軽量サブセット(~5KB)。単一ウェイト体なので
+   font-weight は 400 固定にする(bold 指定は faux-bold で字形が崩れるため、
+   PageShell 側でも font-bold を使わず 400 で描く)。
+   ============================================================ */
+@font-face {
+  font-family: 'Dela Gothic One';
+  src: url('./assets/fonts/DelaGothicOne-title.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   ベーススタイル
+   ============================================================ */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: #1f2937;
+  background-color: #0b1220; /* 3D/画像が載る前の下地。暗色でちらつき軽減 */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+#root {
+  isolation: isolate;
+}
+
+/* リンクのデフォルト下線を外し、コンポーネント側で制御 */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* フォーカスリング: アクセシビリティ用に常に見えるように */
+:focus-visible {
+  outline: 2px solid var(--color-neon-cyan);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* スクロールバーを世界観に寄せる(対応ブラウザのみ) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(77, 208, 225, 0.4);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ============================================================
+   ガラスモーフィズム ユーティリティ
+   ============================================================ */
+@utility glass {
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 8px 32px rgba(15, 30, 60, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+@utility glass-dark {
+  background: rgba(12, 20, 40, 0.45);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(165, 243, 252, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+/* フォールバックの色ガラスパネル。
+   background(accent 半透明)はインラインで指定し、ここでは
+   「背景を透かすぼかし」と「縁の発光ボーダー」だけを担う。
+   --rim にパネル固有色を渡すと、通常は控えめ・hover で縁が上品に光る。 */
+@utility glass-panel {
+  position: relative;
+  /* 背景(花畑)がしっかり透けるよう、ぼかしは控えめに(WebGL 版の
+     低 opacity ガラスと見た目方針を揃える)。 */
+  backdrop-filter: blur(6px) saturate(130%);
+  -webkit-backdrop-filter: blur(6px) saturate(130%);
+  /* 縁の発光ボーダー。通常は淡く、内側に薄いハイライト。 */
+  border: 1px solid color-mix(in srgb, var(--rim, #7ff3ff) 45%, transparent);
+  box-shadow:
+    0 8px 28px rgba(15, 30, 60, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--rim, #7ff3ff);
+    /* 縁がふわっと光る(外周グロー + 内側リム)。全体はボワッとさせない。 */
+    box-shadow:
+      0 10px 32px rgba(15, 30, 60, 0.32),
+      0 0 18px color-mix(in srgb, var(--rim, #7ff3ff) 55%, transparent),
+      inset 0 0 0 1px color-mix(in srgb, var(--rim, #7ff3ff) 70%, transparent);
+  }
+}
+
+/* テキストの視認性を背景の上でも確保する影 */
+@utility text-glow {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 0 18px rgba(165, 243, 252, 0.35);
+}
+
+/* ヘッダー等、明暗どちらの背景の上でも白文字を読ませるための濃い黒影(スクリム代替)。 */
+@utility text-hud-shadow {
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.92),
+    0 0 7px rgba(0, 0, 0, 0.6);
+}
+
+/* ============================================================
+   モーション抑制(prefers-reduced-motion)
+   CSS アニメーションを止める。WebGL 側は JS で別途抑制する。
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
