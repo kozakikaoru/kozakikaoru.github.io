@@ -1,0 +1,51 @@
+# main への push で自動的にビルドして GitHub Pages に公開するワークフロー。
+# Pages の Source は「GitHub Actions」に設定すること(リポジトリ Settings → Pages)。
+#
+# SPA(BrowserRouter)対策: /about 等の直リンクは GitHub Pages 上に実ファイルが無く 404 に
+# なるため、ビルド後に index.html を 404.html にコピーする(GitHub Pages は未知パスに 404.html
+# を返す → その中身が SPA なのでクライアント側ルーティングが引き継ぐ)。base='/' なので
+# アセットは絶対パスで正しく読める。
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時実行は1つに(進行中のデプロイはキャンセルせず完了させる)。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # SPA 直リンク用フォールバック(deep link → 404.html = index.html のコピー)。
+      - run: cp dist/index.html dist/404.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
