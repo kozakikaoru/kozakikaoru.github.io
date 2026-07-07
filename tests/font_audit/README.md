@@ -28,7 +28,7 @@
 ```sh
 # 0) (成果物検査 観点2/3 を有効にするなら) 先にビルドしておく
 export PATH="/usr/local/opt/node@22/bin:$PATH"
-cd /Users/kayu/Projects/claude_code_project/portfolio
+cd /Users/kayu/Projects/claude_code_project/kozakikaoru.github.io
 npm run build
 
 # 1) このディレクトリで venv を作成し、依存を入れる(初回のみネット使用)
