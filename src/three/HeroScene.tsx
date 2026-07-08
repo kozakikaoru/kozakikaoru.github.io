@@ -17,6 +17,16 @@ import { GlassPanel } from './GlassPanel';
 import { Particles } from './Particles';
 import type { QualitySettings } from './quality';
 
+// パネルごとの反射ライトの調整値(3D 目視でユーザーと実機微調整する前提のチューニング定数)。
+// offset: パネル中心を基準とした光源位置(右・やや下・手前)。intensity/distance/decay で
+// 「自分のパネルだけを柔らかく照らし、Bloom しきい値(0.9)を超えない」ように抑える。
+const REFLECT_LIGHT = {
+  offset: [0.7, -0.35, 1.4] as [number, number, number],
+  intensity: 1.5,
+  distance: 2.8,
+  decay: 2,
+};
+
 interface HeroSceneProps {
   quality: QualitySettings;
   reducedMotion: boolean;
@@ -77,31 +87,34 @@ export function HeroScene({
 
   return (
     <>
-      {/* ライティング: 柔らかい環境光 + キーライト + 色付きリムライト */}
+      {/* ライティング: 柔らかい環境光 + キーライト + パネルごとの反射ライト */}
       <ambientLight intensity={0.7} />
       <directionalLight position={[5, 6, 5]} intensity={1.1} />
-      {/* リムライトはサイバーパンク配色に合わせる(シアン/マゼンタ)。
-          ガラスがネオン色をうっすら拾い、HUD の世界観と揃う。
-
-          ■ ユーザー実機 FB①(CONTACT 接写「ガラス上のピンクの光の塊」):
-          旧 intensity 40/30 は、点光源なので roughness 0.16 のツルツルガラスに
-          「集中スペキュラハイライト(点状の鏡面反射)」を作る。renderer.toneMapping は
-          NoToneMapping(EffectComposer が設定)なので、そのハイライト輝度は素通しで
-          Bloom(luminanceThreshold 0.9)に届き、ボワッと膨らんで色の塊になっていた。
-          物理モデル(GGX 直接鏡面 = D_peak·V_SmithGGX·F × 距離減衰 1/d² × 光色×intensity)で
-          全パネルの中心スペキュラ輝度を試算すると、旧設定ではどのパネルでも 0.9 を大幅超過
-          (例: CONTACT×マゼンタ ≈ 18.6、ABOUT×シアン ≈ 37.7)= 塊化。
-          → 対策(併用): ① intensity を 40/30 → 6 に大幅減、
-             ② ガラスの roughness 0.16 → 0.30(ハイライトを点でなく柔らかく拡散)、
-             ③ specularIntensity 1 → 0.5(F0 を下げてハイライトを弱める)。
-          これで面のスペキュラ輝度は「grazing 上界 ≈ 0.39 / 面の現実値 ≈ 0.11」まで下がり、
-          閾値 0.9 を確実に下回る(=塊化しない)。一方で intensity 6 の点光源は残すので、
-          ガラスは依然シアン/マゼンタの方向性のあるうっすらネオン反射を保つ
-          (真っ平ら・真っ暗にはならない)。枠のネオン(HDR ライン/ブラケット)は
-          toneMapped=false の別経路なので従来どおり発光する。
-          検証: scratchpad/verify_specular2.mjs(全パネル・両リムライト)。 */}
-      <pointLight position={[-6, 2, 3]} intensity={6} color="#05d9e8" distance={20} />
-      <pointLight position={[6, -2, 3]} intensity={6} color="#ff2d9c" distance={20} />
+      {/* パネルごとの反射ライト(ユーザーFB「5枚それぞれに反射させたい」)。
+          旧構成は右下のマゼンタ点光源1つが、その正面に来る CONTACT パネルにだけ鏡面反射(ピンク)を
+          落としていた(点光源の反射は光源正面の面にだけ出る性質)。
+          → 各パネルの手前に、そのパネルの accent 色の柔らかい点光源を1つずつ置き、
+            5枚すべてが自分のネオン色でうっすら反射するようにする。
+          ・光源はパネル位置 + REFLECT_LIGHT.offset(手前・やや右下)。
+          ・distance を短く + decay=2 で、主に自分のパネルだけを照らす(隣への漏れを抑える)。
+          ・intensity は Bloom しきい値(0.9)を超えない柔らかさ(旧 CONTACT の "ちょうど良い"
+            反射と同程度の irradiance)に保ち、塊化(ボワッと発光)の再発を防ぐ。
+          ・low ティアは負荷を考え反射ライトを省く(環境光 + キーライト + 環境マップのみ)。 */}
+      {quality.tier !== 'low' &&
+        PANELS.map((panel) => {
+          const [px, py, pz] = layout.positions[panel.id] ?? panel.position;
+          const [ox, oy, oz] = REFLECT_LIGHT.offset;
+          return (
+            <pointLight
+              key={`reflect-${panel.id}`}
+              position={[px + ox, py + oy, pz + oz]}
+              color={panel.accent}
+              intensity={REFLECT_LIGHT.intensity}
+              distance={REFLECT_LIGHT.distance}
+              decay={REFLECT_LIGHT.decay}
+            />
+          );
+        })}
 
       {/* 環境マップ: ガラスの反射・屈折に必要。
           外部 HDRI(CDN)に依存しないよう、Lightformer で自前の環境光を構成する。
