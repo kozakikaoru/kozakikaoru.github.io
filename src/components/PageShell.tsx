@@ -1,46 +1,97 @@
-// 下層ページ共通のコンテナ。ヘッダー(タイトル + 英語サブ)とガラス調の本文枠。
-// ページ遷移時に軽いフェードアップ演出を付ける(prefers-reduced-motion で無効)。
-import type { ReactNode } from 'react';
+// 下層ページ共通のコンテナ(HUD ライト版)。
+// TOP の 3D HUD の世界観を「匂わせる」程度に抑え、読みやすさを最優先する:
+//   - ヘッダー: モノスペースのセクションタグ(// SUB)+ ヘアライン + Dela 見出し + アクセント下線
+//   - ページごとのアクセント色(パネル accent と揃える)を --page-accent で配下へ配る
+//   - 本文カード等は HudKit(HudCard 等)を使う。ライト系ガラス(旧パステル)は使わない
+// ページ遷移時に軽いフェードアップ演出(prefers-reduced-motion で無効)。
+import type { CSSProperties, ReactNode } from 'react';
 import { Link } from 'react-router';
+import { MONO } from './HudKit';
 
 interface PageShellProps {
   title: string;
+  /** 英語セクション名(タグ表示 "// SUB" に使う)。 */
   sub: string;
   lead?: string;
+  /**
+   * ページのアクセント色(パネル accent と揃える)。
+   * 未指定は汎用グロー(#7ff3ff)。配下には --page-accent としても配る。
+   */
+  accent?: string;
   children: ReactNode;
 }
 
-export function PageShell({ title, sub, lead, children }: PageShellProps) {
+export function PageShell({
+  title,
+  sub,
+  lead,
+  accent = '#7ff3ff',
+  children,
+}: PageShellProps) {
   return (
-    <main className="relative z-10 mx-auto min-h-screen max-w-5xl px-4 pb-16 pt-28 sm:px-6 sm:pt-32">
-      {/* パンくず的な戻り導線 */}
+    <main
+      className="relative z-10 mx-auto min-h-screen w-full max-w-5xl px-4 pb-16 pt-28 sm:px-6 sm:pt-32"
+      style={{ '--page-accent': accent } as CSSProperties}
+    >
+      {/* 戻り導線(モノスペースの小チップ) */}
       <Link
         to="/"
-        className="glass-dark mb-6 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-white/85 transition-colors hover:text-white"
+        className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#0a1526]/60 px-3.5 py-1.5 text-[11px] tracking-[0.25em] text-white/75 backdrop-blur transition-colors hover:text-white"
+        style={{ fontFamily: MONO }}
       >
-        <span aria-hidden="true">←</span> ホームへ戻る
+        <span aria-hidden="true">←</span> HOME
       </Link>
 
       {/* ページヘッダー */}
-      <header className="mb-8 [animation:var(--animate-fade-up)]">
-        <p className="text-glow mb-1 text-xs font-semibold tracking-[0.4em] text-neon-glow">
-          {sub}
-        </p>
-        {/* 詳細ページの見出し。極太ディスプレイ体 Dela Gothic One(index.css の @font-face で
-            自己ホスト)。単一ウェイト体なので font-bold は付けず fontWeight:400 で描く
-            (bold 指定は faux-bold=合成太字で字形が崩れるため)。読込前/失敗時は
-            var(--font-display) にフォールバック。 */}
+      <header className="mb-10 [animation:var(--animate-fade-up)]">
+        {/* セクションタグ + ヘアライン(HUD の計器ラベル風) */}
+        <div className="mb-3 flex items-center gap-3">
+          <p
+            className="text-[11px] font-semibold tracking-[0.4em]"
+            style={{ fontFamily: MONO, color: accent }}
+          >
+            {'// '}
+            {sub}
+          </p>
+          <span
+            aria-hidden="true"
+            className="h-px flex-1"
+            style={{
+              background: `linear-gradient(90deg, ${accent}66, transparent 70%)`,
+            }}
+          />
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-[1px]"
+            style={{ background: accent, boxShadow: `0 0 8px ${accent}` }}
+          />
+        </div>
+
+        {/* 見出し。極太ディスプレイ体 Dela Gothic One(自己ホスト・単一ウェイトなので 400 固定。
+            bold 指定は faux-bold=合成太字で字形が崩れるため使わない)。 */}
         <h1
-          className="text-glow text-3xl text-white sm:text-4xl"
+          className="text-3xl text-white sm:text-4xl"
           style={{
             fontFamily: "'Dela Gothic One', var(--font-display)",
             fontWeight: 400,
+            textShadow: `0 1px 2px rgba(0,0,0,0.45), 0 0 26px ${accent}44`,
           }}
         >
           {title}
         </h1>
+
+        {/* アクセント下線(細いネオンバー) */}
+        <div
+          aria-hidden="true"
+          className="mt-3 h-[2px] w-24 rounded-full"
+          style={{
+            background: `linear-gradient(90deg, ${accent}, transparent)`,
+            boxShadow: `0 0 10px ${accent}66`,
+          }}
+        />
+
         {lead && (
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base">
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base">
             {lead}
           </p>
         )}
