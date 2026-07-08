@@ -25,3 +25,6 @@ dist-ssr
 
 # 秘書ちゃん(secretary)の作業データ
 .company/
+
+# Claude Code(ローカル開発ツール設定・マシン固有の絶対パスを含むためリポジトリには含めない)
+.claude/
