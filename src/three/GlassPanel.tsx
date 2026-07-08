@@ -622,7 +622,7 @@ export function GlassPanel({
       {/* ダークガラス本体。ここだけがポインタの当たり判定を持つ(装飾は raycast 無効)。
           cut-corner を押し出した立体なので枠線/フレームとシルエットが厳密一致。
           暗い本体は Bloom 閾値未満なので光らない=枠だけネオン発光(P1 不変)。 */}
-      <mesh geometry={bodyGeometry} castShadow receiveShadow>
+      <mesh geometry={bodyGeometry}>
         <meshPhysicalMaterial
           color={glassTint}
           transparent

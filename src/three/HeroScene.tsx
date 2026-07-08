@@ -79,7 +79,7 @@ export function HeroScene({
     <>
       {/* ライティング: 柔らかい環境光 + キーライト + 色付きリムライト */}
       <ambientLight intensity={0.7} />
-      <directionalLight position={[5, 6, 5]} intensity={1.1} castShadow />
+      <directionalLight position={[5, 6, 5]} intensity={1.1} />
       {/* リムライトはサイバーパンク配色に合わせる(シアン/マゼンタ)。
           ガラスがネオン色をうっすら拾い、HUD の世界観と揃う。
 

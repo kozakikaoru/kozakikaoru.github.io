@@ -64,17 +64,24 @@ function NeonBloom({ quality }: { quality: QualitySettings }) {
   );
 }
 
-/** GPU ティアを判定してシーンを構成する内側。useDetectGPU は Suspense 前提。 */
-function HeroSceneWithQuality({
+/**
+ * GPU ティアを Canvas の外側で判定する。
+ * DPR 上限(quality.dprMax)は Canvas 生成時に確定させる必要がある:
+ *   AdaptiveDpr は負荷回復時に viewport.initialDpr(= Canvas の dpr プロップ)へ戻すため、
+ *   マウント後に setDpr で下げても復帰時に上限へ戻されてしまう。よって dpr プロップに焼き込む。
+ * useDetectGPU は suspend するので、呼び出し元(HeroCanvas)で <Suspense> に包む。
+ */
+function HeroCanvasInner({
   reducedMotion,
   onActivate,
   hoveredId,
-}: Omit<HeroCanvasProps, 'onContextError'>) {
+  onContextError,
+}: HeroCanvasProps) {
   const gpu = useDetectGPU();
   const screenWidth =
     typeof window !== 'undefined' ? window.innerWidth : 1280;
 
-  const quality = useMemo(() => {
+  const quality = useMemo<QualitySettings>(() => {
     const tier = decideTier({
       gpuTier: gpu.tier,
       isMobile: !!gpu.isMobile,
@@ -84,29 +91,6 @@ function HeroSceneWithQuality({
   }, [gpu.tier, gpu.isMobile, screenWidth]);
 
   return (
-    <>
-      <HeroScene
-        quality={quality}
-        reducedMotion={reducedMotion}
-        onActivate={onActivate}
-        hoveredId={hoveredId}
-      />
-      {/* ネオン発光(後処理)。low ティアは描画しない(emissive だけで雰囲気維持)。 */}
-      {quality.bloom && <NeonBloom quality={quality} />}
-      {/* 負荷が高いフレームで自動的に DPR を落とす */}
-      <AdaptiveDpr pixelated={false} />
-      <Preload all />
-    </>
-  );
-}
-
-export function HeroCanvas({
-  reducedMotion,
-  onActivate,
-  hoveredId,
-  onContextError,
-}: HeroCanvasProps) {
-  return (
     <Canvas
       // WebGL 非対応環境では即このフォールバックが出る。
       fallback={
@@ -114,8 +98,10 @@ export function HeroCanvas({
           お使いの環境では 3D 表示を利用できません。
         </div>
       }
-      shadows
-      dpr={[1, 2]}
+      // 影は使わない(変更①): 本体は半透明ダークガラスで背景の花畑は WebGL 外(DOM 画像)。
+      // WebGL 内で影を受けるのはパネル本体だけかつ半透明で見えず、影パスは純粋な無駄なので付けない。
+      // DPR 上限はティア別(high=2 / mid=1.5 / low=1)。AdaptiveDpr が負荷時にさらに動的に下げる。
+      dpr={[1, quality.dprMax]}
       gl={{
         antialias: true,
         // 透明キャンバス(DOM 背景の花畑が透ける)を維持する要。EffectComposer 導入後も不変。
@@ -137,12 +123,28 @@ export function HeroCanvas({
       }}
     >
       <Suspense fallback={null}>
-        <HeroSceneWithQuality
+        <HeroScene
+          quality={quality}
           reducedMotion={reducedMotion}
           onActivate={onActivate}
           hoveredId={hoveredId}
         />
+        {/* ネオン発光(後処理)。low ティアは描画しない(emissive だけで雰囲気維持)。 */}
+        {quality.bloom && <NeonBloom quality={quality} />}
+        {/* 負荷が高いフレームで自動的に DPR を落とす(上限は上の dpr プロップ)。 */}
+        <AdaptiveDpr pixelated={false} />
+        <Preload all />
       </Suspense>
     </Canvas>
+  );
+}
+
+export function HeroCanvas(props: HeroCanvasProps) {
+  // useDetectGPU(Canvas 外)が suspend するので Suspense で包む。
+  // フォールバックは null(後ろに DOM 背景 TimeBackground が見えるので黒画面にはならない)。
+  return (
+    <Suspense fallback={null}>
+      <HeroCanvasInner {...props} />
+    </Suspense>
   );
 }
