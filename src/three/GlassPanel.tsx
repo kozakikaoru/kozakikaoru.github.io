@@ -195,6 +195,9 @@ export function GlassPanel({
   // 角丸半径・面取り量。
   const radius = useMemo(() => (isLarge ? 0.13 : 0.1), [isLarge]);
   const cut = useMemo(() => (isLarge ? 0.34 : 0.26), [isLarge]);
+  // 顔写真の左下カット量。本体 cut(0.34)より小さくして写真が左下の角をより埋めるようにする
+  // (ユーザーFB「アイコン左下の角の余白を少し詰めて」)。本体パネルのカットとは分離する。
+  const photoCut = isLarge ? 0.22 : 0.16;
 
   // 各パネルで浮遊の位相をずらす。
   const phase = useMemo(() => index * 1.3, [index]);
@@ -364,7 +367,7 @@ export function GlassPanel({
       photoRight,
       photoTop,
       photoBottom,
-      cut,
+      photoCut,
     );
     const g = new THREE.ShapeGeometry(shape);
     // UV を外接矩形基準で 0..1 に(画像を歪みなく貼る)。ShapeGeometry 既定 UV は生座標のため上書き。
@@ -378,18 +381,18 @@ export function GlassPanel({
     }
     g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
     return g;
-  }, [isAbout, photoLeft, photoRight, photoTop, photoBottom, cut]);
+  }, [isAbout, photoLeft, photoRight, photoTop, photoBottom, photoCut]);
   const photoFrameGeometry = useMemo(() => {
     if (!isAbout) return null;
     const pts = [
-      new THREE.Vector3(photoLeft + cut, photoBottom, 0),
+      new THREE.Vector3(photoLeft + photoCut, photoBottom, 0),
       new THREE.Vector3(photoRight, photoBottom, 0),
       new THREE.Vector3(photoRight, photoTop, 0),
       new THREE.Vector3(photoLeft, photoTop, 0),
-      new THREE.Vector3(photoLeft, photoBottom + cut, 0),
+      new THREE.Vector3(photoLeft, photoBottom + photoCut, 0),
     ];
     return new THREE.BufferGeometry().setFromPoints(pts);
-  }, [isAbout, photoLeft, photoRight, photoTop, photoBottom, cut]);
+  }, [isAbout, photoLeft, photoRight, photoTop, photoBottom, photoCut]);
 
   const fontsReady = useLabelFontsReady();
   const labelFont = LABEL_FONTS[panel.labelFont ?? 'system'];
