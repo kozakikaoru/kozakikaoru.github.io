@@ -581,11 +581,11 @@ export function GlassPanel({
   // 発光量は全パネル共通(ユーザーFB「一回戻して」)。読みやすさは下の濃い縁取りで担保する。
   // ホバー時の文字色(ユーザーFB): about/works は accent の性質でホバー時に自然と "白に近い"
   // 色になる(理想なのでそのまま=白寄せなし)。それ以外は白へ寄せる量をパネル別に調整する:
-  //   services(お力になれること)= 0.2 / career(経歴)・contact(お問い合わせ)= 0(色を残す)。
+  //   music(ミュージック)= 0.2 / career(経歴)・contact(お問い合わせ)= 0(色を残す)。
   // idle は従来どおり各色を保つ。
   const labelColor = useMemo(() => {
     const c = neonColor(baseColor, active ? 1.5 : 1.05);
-    const whiten = active && panel.id === 'services' ? 0.2 : 0;
+    const whiten = active && panel.id === 'music' ? 0.2 : 0;
     if (whiten > 0) c.lerp(new THREE.Color(1.5, 1.5, 1.5), whiten);
     return c;
   }, [baseColor, active, panel.id]);

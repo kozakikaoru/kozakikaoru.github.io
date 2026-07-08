@@ -15,8 +15,8 @@
   --color-night: #1b2a4a; /* 夜 */
 
   /* ネオン(デジタルの光)= サイバーパンク配色(P2・panels.ts の accent と揃える)。
-     緑は廃止。cyan=services / magenta=about / glow(明るいシアン)は汎用グロー。 */
-  --color-neon-cyan: #05d9e8; /* エレクトリックシアン(services) */
+     緑は廃止。cyan=music / magenta=about / glow(明るいシアン)は汎用グロー。 */
+  --color-neon-cyan: #05d9e8; /* エレクトリックシアン(music) */
   --color-neon-magenta: #ff2d9c; /* マゼンタ/ピンク(about) */
   --color-neon-glow: #7ff3ff; /* 明るいシアン(text-glow 等の汎用) */
 

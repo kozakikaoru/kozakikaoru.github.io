@@ -14,7 +14,7 @@
 /** アイコン種別(hudGeometry.makeIconGeometry が解釈する)。 */
 export type HudIconKind =
   | 'profile'
-  | 'skills'
+  | 'music'
   | 'gallery'
   | 'route'
   | 'signal';
@@ -69,28 +69,28 @@ export const HUD_THEMES: Record<string, HudTheme> = {
     hexRows: ['4F 62 1A 09 FF', 'A3 7C 55 10 2E', '0B 1A 2A 6E D4'],
     unit: 'REL',
   },
-  services: {
-    icon: 'skills',
-    seriesCode: 'SKL',
-    caption: 'SKILLSET',
-    subReadout: 'MODE ACTIVE',
-    statusTag: 'SYS OK',
-    chart: 'bars',
+  music: {
+    icon: 'music',
+    seriesCode: 'SND',
+    caption: 'SOUND LAB',
+    subReadout: 'BPM 124',
+    statusTag: 'ON AIR',
+    chart: 'bars', // 縦バー=イコライザ風(音楽にそのまま合う)
     gauge: 0.74,
-    scaleLabels: ['0', '2', '4', '6', '8'],
-    hexRows: ['UI 92', 'API 88', 'GL 79'],
-    unit: 'LVL',
+    scaleLabels: ['20', '200', '1K', '5K', '20K'], // 周波数帯
+    hexRows: ['TRK 03', 'BPM 124', 'MIX 88'],
+    unit: 'dB',
   },
   works: {
     icon: 'gallery',
-    seriesCode: 'GAL',
-    caption: 'GALLERY',
-    subReadout: 'IDX 001-024',
+    seriesCode: 'DEV',
+    caption: 'DEV WORKS',
+    subReadout: 'IDX 001-008',
     statusTag: 'LOADED',
     chart: 'grid',
     gauge: 0.66,
     scaleLabels: ['A', 'B', 'C', 'D', 'E'],
-    hexRows: ['IMG 24', 'TAG 11', 'FAV 07'],
+    hexRows: ['APP 08', 'WEB 06', 'LAB 02'],
     unit: 'PCS',
   },
   career: {

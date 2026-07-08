@@ -59,12 +59,12 @@ export const PANELS: PanelDef[] = [
     labelFont: 'wdxl',
   },
   {
-    id: 'services',
-    to: '/services',
-    label: 'できること',
-    displayLabel: 'お力になれること',
-    sub: 'SERVICES',
-    description: '何を頼めるか',
+    id: 'music',
+    to: '/music',
+    label: 'ミュージック',
+    displayLabel: 'MUSIC',
+    sub: 'MUSIC',
+    description: 'AIでつくった楽曲',
     position: [-3.25, -0.55, 0],
     // エレクトリックシアン。
     accent: '#05d9e8',
@@ -75,10 +75,10 @@ export const PANELS: PanelDef[] = [
   {
     id: 'works',
     to: '/works',
-    label: '作品集',
-    displayLabel: '作品例',
-    sub: 'WORKS',
-    description: 'つくったもの',
+    label: 'プロダクト',
+    displayLabel: 'プロダクト',
+    sub: 'PRODUCTS',
+    description: '開発した作品たち',
     position: [0, 0.75, 0],
     // works=薄めのクリムゾン(ユーザーFB「クリムゾンで薄目」)。ビビッド #ff2e4c を一段ライトに。
     accent: '#ff5566',
@@ -273,7 +273,7 @@ function wideLayout(): Pick<HeroLayout, 'positions' | 'kind'> {
     kind: 'wide',
     positions: {
       about: [aboutX, 0, 0],
-      services: [gridCx - cx / 2, ry / 2, 0],
+      music: [gridCx - cx / 2, ry / 2, 0],
       works: [gridCx + cx / 2, ry / 2, 0],
       career: [gridCx - cx / 2, -ry / 2, 0],
       contact: [gridCx + cx / 2, -ry / 2, 0],
@@ -301,7 +301,7 @@ function portraitLayout(): Pick<HeroLayout, 'positions' | 'kind'> {
     kind: 'portrait',
     positions: {
       about: [0, aboutY, 0],
-      services: [-cx / 2, gridCy + ry / 2, 0],
+      music: [-cx / 2, gridCy + ry / 2, 0],
       works: [cx / 2, gridCy + ry / 2, 0],
       career: [-cx / 2, gridCy - ry / 2, 0],
       contact: [cx / 2, gridCy - ry / 2, 0],
@@ -316,7 +316,7 @@ function portraitLayout(): Pick<HeroLayout, 'positions' | 'kind'> {
  */
 function columnLayout(sizes: SizeMap): Pick<HeroLayout, 'positions' | 'kind'> {
   const gap = 0.55; // 行間の余白(>= 2*DECOR_MARGIN=0.4。装飾のはみ出し込みで分離)
-  const order = ['about', 'services', 'works', 'career', 'contact'];
+  const order = ['about', 'music', 'works', 'career', 'contact'];
   const positions: Record<string, [number, number, number]> = {};
   // 上から順に積む。各パネル中心 y を、前パネルとの (halfH_prev + halfH_cur + gap) で決める。
   let cursorY = 0;

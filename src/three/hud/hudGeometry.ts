@@ -315,7 +315,7 @@ export function makeScaleTicksGeometry(
 // ------------------------------------------------------------------
 
 // ------------------------------------------------------------------
-// リング内のパネル種別ラインアート(profile/skills/gallery/route/signal)
+// リング内のパネル種別ラインアート(profile/music/gallery/route/signal)
 // ------------------------------------------------------------------
 export function makeIconGeometry(
   kind: HudIconKind,
@@ -340,9 +340,20 @@ export function makeIconGeometry(
       arc(0, s * -0.55, s * 0.6, Math.PI * 0.15, Math.PI * 0.85, 12); // 肩
       break;
     }
-    case 'skills': {
-      line(-s * 0.5, -s * 0.5, s * 0.28, s * 0.28); // レンチ柄
-      arc(s * 0.42, s * 0.42, s * 0.28, -Math.PI * 0.35, Math.PI * 1.05, 12); // C 字
+    case 'music': {
+      // 8分音符×2(連桁つき)。左右の符幹 + 斜めの二重連桁 + 符頭(小円)。
+      const x1 = -s * 0.34;
+      const x2 = s * 0.4;
+      const t1 = s * 0.52; // 左符幹の上端
+      const t2 = s * 0.36; // 右符幹の上端(低め=連桁が斜めになる)
+      const h1 = -s * 0.34; // 左符頭の中心 y
+      const h2 = -s * 0.22; // 右符頭の中心 y
+      line(x1, h1, x1, t1); // 左符幹
+      line(x2, h2, x2, t2); // 右符幹
+      line(x1, t1, x2, t2); // 連桁(上)
+      line(x1, t1 - s * 0.14, x2, t2 - s * 0.14); // 連桁(下・二重)
+      arc(x1 - s * 0.1, h1, s * 0.115, 0, Math.PI * 2, 10); // 左符頭
+      arc(x2 - s * 0.1, h2, s * 0.115, 0, Math.PI * 2, 10); // 右符頭
       break;
     }
     case 'gallery': {

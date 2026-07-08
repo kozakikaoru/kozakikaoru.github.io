@@ -15,7 +15,7 @@ import { useAppStore } from './store/useAppStore';
 // TOP は初回に必ず要るので同期 import。下層は遅延ロードで初期バンドルを軽く。
 import Home from './pages/Home';
 const About = lazy(() => import('./pages/About'));
-const Services = lazy(() => import('./pages/Services'));
+const Music = lazy(() => import('./pages/Music'));
 const Works = lazy(() => import('./pages/Works'));
 const Career = lazy(() => import('./pages/Career'));
 const Contact = lazy(() => import('./pages/Contact'));
@@ -61,7 +61,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
+          <Route path="/music" element={<Music />} />
           <Route path="/works" element={<Works />} />
           <Route path="/career" element={<Career />} />
           <Route path="/contact" element={<Contact />} />
