@@ -197,7 +197,7 @@ export function GlassPanel({
   const cut = useMemo(() => (isLarge ? 0.34 : 0.26), [isLarge]);
   // 顔写真の左下カット量。本体 cut(0.34)より小さくして写真が左下の角をより埋めるようにする
   // (ユーザーFB「アイコン左下の角の余白を少し詰めて」)。本体パネルのカットとは分離する。
-  const photoCut = isLarge ? 0.22 : 0.16;
+  const photoCut = isLarge ? 0.25 : 0.18;
 
   // 各パネルで浮遊の位相をずらす。
   const phase = useMemo(() => index * 1.3, [index]);
