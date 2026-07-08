@@ -183,7 +183,7 @@ export function GlassPanel({
   //   ・リング撤去 ・名前は写真の右へ(位置固定)。計器は元位置のまま(写真と重なってOK)。
   const isAbout = panel.id === 'about';
   // 顔写真は枠の内側に収める(余白を取り、アスペクト維持で引き伸ばさない)。左下角のみカット。
-  const photoMarginY = PANEL_H * 0.07; // 上下の余白
+  const photoMarginY = PANEL_H * 0.045; // 上下の余白(右側の余白に合わせて詰める・ユーザーFB)
   const photoMarginL = PANEL_W * 0.035; // 左の余白
   const photoTop = PANEL_H / 2 - photoMarginY;
   const photoBottom = -PANEL_H / 2 + photoMarginY;
