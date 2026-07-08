@@ -4,6 +4,7 @@
 // 斜めセグメントの進捗バー、進捗に応じて変わるブートログ。
 // 進捗(0..1)は zustand ストアから取得。完了後はフェードアウトして DOM から外れる。
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
 import { useAppStore } from '../store/useAppStore';
 
 // HUD 数値・ログ用の等幅フォント(端末標準の mono を使う。技術的な計器表示に寄せる)。
@@ -43,6 +44,9 @@ export function LoadingScreen() {
   const progress = useAppStore((s) => s.loadProgress);
   const isLoaded = useAppStore((s) => s.isLoaded);
   const [hidden, setHidden] = useState(false);
+  // ブートのローディング画面は TOP(/)でだけ出す。サブページのハードロード/リロードでは出さない。
+  const { pathname } = useLocation();
+  const onTop = pathname === '/';
 
   // 完了後、フェードアウト演出の時間を待ってから DOM から外す。
   useEffect(() => {
@@ -51,7 +55,7 @@ export function LoadingScreen() {
     return () => clearTimeout(t);
   }, [isLoaded]);
 
-  if (hidden) return null;
+  if (hidden || !onTop) return null;
 
   const pct = Math.round(progress * 100);
   const litCount = Math.round(progress * SEGMENTS);

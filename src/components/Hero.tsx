@@ -34,6 +34,8 @@ export function Hero() {
   const reducedMotion = usePrefersReducedMotion();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [leaving, setLeaving] = useState(false);
+  // マウント後にふわっと登場させるフラグ(サブページ→TOP に戻った時のポップイン回避)。
+  const [shown, setShown] = useState(false);
   // WebGL がクラッシュしたら静止画フォールバックへ切り替える。
   const [crashed, setCrashed] = useState(false);
 
@@ -53,6 +55,12 @@ export function Hero() {
   // 遷移演出のクリーンアップ(戻ってきた時のため)。
   useEffect(() => setLeaving(false), []);
 
+  // マウント後、次フレームで登場させる(既存の transition-opacity がフェードインを駆動)。
+  useEffect(() => {
+    const r = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(r);
+  }, []);
+
   const use3D = cap.ready && cap.canRender3D && !crashed;
 
   // DOM ホットスポット(透明な実リンク層)を 3D パネルの実投影位置に追従させる。
@@ -67,7 +75,7 @@ export function Hero() {
   return (
     <section
       className="relative h-screen w-full overflow-hidden transition-opacity duration-300"
-      style={{ opacity: leaving ? 0 : 1 }}
+      style={{ opacity: leaving || !shown ? 0 : 1 }}
       aria-label="ヒーロー"
     >
       {/* 画面中央の見出しは非表示にし、パネルを主役にする(ユーザー要望)。
