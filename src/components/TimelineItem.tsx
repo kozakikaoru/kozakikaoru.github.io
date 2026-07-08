@@ -12,13 +12,13 @@ export function TimelineItem({ project, isLast }: TimelineItemProps) {
 
   return (
     <li className="relative pl-12 sm:pl-16">
-      {/* 縦の接続ライン(最後の項目では下に伸ばさない) */}
+      {/* 縦の接続ライン(最後の項目では下に伸ばさない)。色はページアクセント基調 */}
       {!isLast && (
         <span
           className="absolute left-[18px] top-6 h-full w-px sm:left-[26px]"
           style={{
             background:
-              'linear-gradient(to bottom, rgba(165,243,252,0.6), rgba(165,243,252,0.1))',
+              'linear-gradient(to bottom, color-mix(in srgb, var(--page-accent, #7ff3ff) 60%, transparent), color-mix(in srgb, var(--page-accent, #7ff3ff) 10%, transparent))',
           }}
           aria-hidden="true"
         />
@@ -44,7 +44,10 @@ export function TimelineItem({ project, isLast }: TimelineItemProps) {
       {/* カード */}
       <article className="glass-dark mb-6 rounded-3xl p-5 text-white sm:p-6">
         <div className="flex flex-wrap items-center gap-2">
-          <time className="font-mono text-xs text-neon-glow">
+          <time
+            className="font-mono text-xs"
+            style={{ color: 'var(--page-accent, #7ff3ff)' }}
+          >
             {project.period}
           </time>
           <span
@@ -79,7 +82,12 @@ export function TimelineItem({ project, isLast }: TimelineItemProps) {
 
         {/* 成果 */}
         <p className="mt-3 rounded-2xl bg-white/5 px-3 py-2 text-sm">
-          <span className="mr-1 font-semibold text-neon-glow">成果:</span>
+          <span
+            className="mr-1 font-semibold"
+            style={{ color: 'var(--page-accent, #7ff3ff)' }}
+          >
+            成果:
+          </span>
           {project.outcome}
         </p>
 

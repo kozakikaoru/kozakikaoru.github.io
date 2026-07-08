@@ -112,6 +112,27 @@ export function NeonLink({
   );
 }
 
+/**
+ * 和文テキスト用の小さなチップ(スキル名・種別タグ等)。
+ * MonoTag は英数の計器タグ専用に保つ(等幅+広字間に和文を入れると崩れるため)。
+ * 日本語のラベルはこちらを使う。
+ */
+export function Chip({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border border-white/15 bg-white/[0.07] px-2.5 py-1 text-xs text-white/85 ${className}`}
+    >
+      {children}
+    </span>
+  );
+}
+
 /** アクセント発光のボタン。 */
 export function NeonButton({
   subtle = false,

@@ -4,7 +4,7 @@
 // - Nav / Footer: 共通ヘッダー・フッター
 // - Routes: 各ページ
 import { lazy, Suspense, useEffect } from 'react';
-import { Route, Routes, useLocation } from 'react-router';
+import { Navigate, Route, Routes, useLocation } from 'react-router';
 import { TimeBackground } from './components/TimeBackground';
 import { LoadingScreen } from './components/LoadingScreen';
 import { Nav } from './components/Nav';
@@ -62,6 +62,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/music" element={<Music />} />
+          {/* 旧 URL 互換: /services(サービス→ミュージック改名前)は /music へ */}
+          <Route path="/services" element={<Navigate to="/music" replace />} />
           <Route path="/works" element={<Works />} />
           <Route path="/career" element={<Career />} />
           <Route path="/contact" element={<Contact />} />

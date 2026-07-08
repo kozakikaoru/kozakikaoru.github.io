@@ -1,93 +1,109 @@
-// 作品集(Works)ページのコンテンツ(ダミー)。
-// ★ 依頼主が起床後に実データ・実画像へ差し替える箇所。
-// thumbnailUrl が null の間は世界観に合ったグラデーションのプレースホルダを表示する。
+// プロダクト(Works)ページのコンテンツ。
+// GitHub の公開リポジトリ(github.com/kozakikaoru)から取得した実データ。
+// summary はリポジトリの説明文そのまま。note は種別・技術の淡白な補足に留め、
+// 中身の機能を推測で書かない(捏造防止)。
+// サムネイルは GitHub の OG 自動生成画像を仮置き(★スクリーンショットが
+// 用意でき次第 imageUrl を実画像へ差し替える)。
 
 export interface Work {
   id: string;
   title: string;
-  category: string;
-  year: string;
+  /** 1行目: プロダクトの説明(リポジトリの説明文そのまま)。 */
   summary: string;
-  tags: string[];
-  /** サムネイル画像 URL。null ならプレースホルダ。 */
-  thumbnailUrl: string | null;
-  /** 外部リンク(公開 URL や GitHub 等)。null なら非表示。 */
-  link: string | null;
-  /** プレースホルダ用のアクセント色(2色グラデーション)。 */
-  gradient: [string, string];
+  /** 2行目: 種別・技術の淡白な補足。機能の推測は書かない。 */
+  note: string;
+  /** サムネイル画像。GitHub の OG 自動生成画像(仮)。 */
+  imageUrl: string;
+  /** GitHub Pages の公開 URL。無いものはリポジトリのみ公開。 */
+  pagesUrl?: string;
+  /** GitHub リポジトリ URL。 */
+  repoUrl: string;
+  /** [言語, 種別] のタグ。言語は MonoTag(英数)、種別は Chip(和文)で表示。 */
+  tags: [string, string];
+}
+
+/** GitHub の OG 自動生成画像 URL(1200×600)。 */
+function ogImage(repo: string): string {
+  return `https://opengraph.githubassets.com/1/kozakikaoru/${repo}`;
 }
 
 export const WORKS: Work[] = [
   {
-    id: 'w1',
-    title: 'インタラクティブ・ブランドサイト', // ★差し替え
-    category: 'Web / 3D',
-    year: '2025',
-    summary:
-      'WebGL を使った没入型のブランドサイト。スクロールに連動した 3D 演出でプロダクトの世界観を表現。',
-    tags: ['Three.js', 'React', 'GSAP'],
-    thumbnailUrl: null,
-    link: null,
-    gradient: ['#4dd0e1', '#7bb661'],
+    id: 'anthos',
+    title: 'anthos',
+    summary: '書いた文章が一輪の花になる日記アプリ',
+    note: 'ブラウザで動く Web アプリ。GitHub Pages で公開中。',
+    imageUrl: ogImage('anthos'),
+    pagesUrl: 'https://kozakikaoru.github.io/anthos/',
+    repoUrl: 'https://github.com/kozakikaoru/anthos',
+    tags: ['JavaScript', 'Web アプリ'],
   },
   {
-    id: 'w2',
-    title: 'SaaS 管理ダッシュボード',
-    category: 'Web アプリ',
-    year: '2024',
-    summary:
-      '大量データを扱う管理画面。パフォーマンスとアクセシビリティを両立した UI コンポーネント群を設計。',
-    tags: ['Next.js', 'TypeScript', 'Recharts'],
-    thumbnailUrl: null,
-    link: null,
-    gradient: ['#e879f9', '#8ecae6'],
+    id: 'corner_cut_reversi_eval',
+    title: 'corner_cut_reversi_eval',
+    summary: '異形オセロシミュレーター（対戦・評価値計算）',
+    note: 'TypeScript 製の Web アプリ。GitHub Pages で公開中。',
+    imageUrl: ogImage('corner_cut_reversi_eval'),
+    pagesUrl: 'https://kozakikaoru.github.io/corner_cut_reversi_eval/',
+    repoUrl: 'https://github.com/kozakikaoru/corner_cut_reversi_eval',
+    tags: ['TypeScript', 'シミュレーター'],
   },
   {
-    id: 'w3',
-    title: 'モバイル EC アプリ',
-    category: 'フロントエンド',
-    year: '2024',
-    summary:
-      '快適な購買体験を目指した EC フロント。マイクロインタラクションで「気持ちよさ」を追求。',
-    tags: ['React Native', 'Firebase'],
-    thumbnailUrl: null,
-    link: null,
-    gradient: ['#f4a261', '#e879f9'],
+    id: 'casino_simulator',
+    title: 'casino_simulator',
+    summary: 'ホールデムカジノ マーチンゲールシミュレーター',
+    note: 'TypeScript 製の Web アプリ。GitHub Pages で公開中。',
+    imageUrl: ogImage('casino_simulator'),
+    pagesUrl: 'https://kozakikaoru.github.io/casino_simulator/',
+    repoUrl: 'https://github.com/kozakikaoru/casino_simulator',
+    tags: ['TypeScript', 'シミュレーター'],
   },
   {
-    id: 'w4',
-    title: '個人開発ツール',
-    category: '個人開発',
-    year: '2023',
-    summary:
-      '日々の作業を効率化する Web ツール。企画から実装・運用まで一人で担当。',
-    tags: ['Vue', 'Supabase'],
-    thumbnailUrl: null,
-    link: null,
-    gradient: ['#7bb661', '#a5f3fc'],
+    id: 'engineer_tutorial',
+    title: 'engineer_tutorial',
+    summary: 'エンジニア1年生向け学習チュートリアル',
+    note: 'ブラウザで読める学習コンテンツ。GitHub Pages で公開中。',
+    imageUrl: ogImage('engineer_tutorial'),
+    pagesUrl: 'https://kozakikaoru.github.io/engineer_tutorial/',
+    repoUrl: 'https://github.com/kozakikaoru/engineer_tutorial',
+    tags: ['JavaScript', 'チュートリアル'],
   },
   {
-    id: 'w5',
-    title: 'コーポレートサイト リニューアル',
-    category: 'Web 制作',
-    year: '2023',
-    summary:
-      '既存サイトの全面刷新。表示速度と SEO を大幅に改善し、問い合わせ数の向上に貢献。',
-    tags: ['Astro', 'Tailwind CSS'],
-    thumbnailUrl: null,
-    link: null,
-    gradient: ['#8ecae6', '#4dd0e1'],
+    id: 'claude_code_tutorial',
+    title: 'claude_code_tutorial',
+    summary: 'Claude Codeチュートリアル',
+    note: 'MDX で書かれたドキュメントサイト。GitHub Pages で公開中。',
+    imageUrl: ogImage('claude_code_tutorial'),
+    pagesUrl: 'https://kozakikaoru.github.io/claude_code_tutorial/',
+    repoUrl: 'https://github.com/kozakikaoru/claude_code_tutorial',
+    tags: ['MDX', 'チュートリアル'],
   },
   {
-    id: 'w6',
-    title: 'データ可視化 実験',
-    category: '実験 / R&D',
-    year: '2022',
-    summary:
-      'Canvas / WebGL を使ったデータビジュアライゼーションの習作。表現の引き出しを増やすための実験。',
-    tags: ['D3.js', 'WebGL'],
-    thumbnailUrl: null,
-    link: null,
-    gradient: ['#a5f3fc', '#e879f9'],
+    id: 'career_advisor',
+    title: 'career_advisor',
+    summary: '進路提案Webアプリ',
+    note: 'TypeScript 製の Web アプリ。リポジトリのみ公開。',
+    imageUrl: ogImage('career_advisor'),
+    repoUrl: 'https://github.com/kozakikaoru/career_advisor',
+    tags: ['TypeScript', 'Web アプリ'],
+  },
+  {
+    id: 'company',
+    title: 'company',
+    summary: 'claude code用プラグイン',
+    note: 'Claude Code の拡張プラグイン。シェルスクリプト製。',
+    imageUrl: ogImage('company'),
+    repoUrl: 'https://github.com/kozakikaoru/company',
+    tags: ['Shell', 'プラグイン'],
+  },
+  {
+    id: 'kozakikaoru.github.io',
+    title: 'kozakikaoru.github.io',
+    summary: '個人HP(このサイト)',
+    note: 'React + TypeScript + Three.js 製。いま見ているサイトです。',
+    imageUrl: ogImage('kozakikaoru.github.io'),
+    pagesUrl: 'https://kozakikaoru.github.io/',
+    repoUrl: 'https://github.com/kozakikaoru/kozakikaoru.github.io',
+    tags: ['TypeScript', 'Web サイト'],
   },
 ];

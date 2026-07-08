@@ -1,5 +1,8 @@
 // 全ページ共通のフッター。
+// ナビリンクはハードコードせず PANELS(3D パネル=サイトの一次ナビ)から生成し、
+// パネルの追加・改名に自動追従させる。
 import { Link } from 'react-router';
+import { PANELS } from '../data/panels';
 import { PROFILE } from '../data/profile';
 
 export function Footer() {
@@ -13,16 +16,12 @@ export function Footer() {
         <span className="mx-2 text-white/30">/</span>
         {PROFILE.role}
       </p>
-      <div className="mt-4 flex justify-center gap-4 text-xs">
-        <Link to="/about" className="hover:text-white">
-          自己紹介
-        </Link>
-        <Link to="/works" className="hover:text-white">
-          作品集
-        </Link>
-        <Link to="/contact" className="hover:text-white">
-          お問い合わせ
-        </Link>
+      <div className="mt-4 flex flex-wrap justify-center gap-4 text-xs">
+        {PANELS.map((p) => (
+          <Link key={p.id} to={p.to} className="hover:text-white">
+            {p.label}
+          </Link>
+        ))}
       </div>
       <p className="mt-6 text-[11px] text-white/40">
         © {year} {PROFILE.nameEn}. Built with React &amp; WebGL.

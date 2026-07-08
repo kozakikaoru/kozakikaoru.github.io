@@ -28,12 +28,14 @@ export interface CareerProject {
 }
 
 // domain ごとのアクセント色。タイムラインのノード/バッジに使う。
+// ネオン系パレット(panels.ts の accent 系統)から、ページアクセント(#ff9e2c)と
+// 被らないよう割り当てる。旧パステル(#7bb661 等)は全廃。
 export const DOMAIN_COLORS: Record<string, string> = {
-  'Web 制作': '#7bb661',
-  '自社プロダクト': '#4dd0e1',
-  '受託開発': '#e879f9',
-  'R&D / 実験': '#f4a261',
-  デフォルト: '#a5f3fc',
+  'Web 制作': '#05d9e8',
+  '自社プロダクト': '#b14dff',
+  '受託開発': '#ff5566',
+  'R&D / 実験': '#1f8fff',
+  デフォルト: '#7ff3ff',
 };
 
 export const CAREER_PROJECTS: CareerProject[] = [
