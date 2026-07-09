@@ -13,7 +13,13 @@ from pathlib import Path
 
 import pytest
 
-from sources import DIST_ASSETS, FONTS_DIR, font_bindings, registered_families
+from sources import (
+    DIST_ASSETS,
+    FONTS_DIR,
+    delivered_fonts,
+    font_bindings,
+    registered_families,
+)
 
 # woff2 を読むには brotli 展開が要る。fonttools + brotli が無ければ
 # このスイートは意味をなさないので、収集時点で分かるように読み込む。
@@ -42,6 +48,15 @@ def bindings():
 def registered_family_names():
     """labelFonts.ts の FACES に登録された全ファミリ名。"""
     return registered_families()
+
+
+@pytest.fixture(scope="session")
+def deliveries():
+    """dist に woff2 が出るべき登録フォント一覧(JS=FontFace / CSS=@font-face の両経路)。
+
+    labelFonts.ts と index.css が真実源。dist 成果物検査(観点2/3)で使う。
+    """
+    return delivered_fonts()
 
 
 # ------------------------------------------------------------------
@@ -87,6 +102,18 @@ def dist_js_files():
     if not files:
         pytest.skip("dist/assets に JS が無い。`npm run build` を実行してください")
     return files
+
+
+@pytest.fixture(scope="session")
+def dist_css_files():
+    """dist/assets 配下の CSS ファイル一覧(CSS 経路の参照検査用)。未ビルドなら skip。
+
+    JS と違い「CSS が 0 個」は CSS 経路フォントが無い構成ではありうるので、
+    dist さえあれば空リストも正常として返す(skip しない)。
+    """
+    if not DIST_ASSETS.exists():
+        pytest.skip(f"dist が未生成: {DIST_ASSETS}。`npm run build` 後に有効になります")
+    return sorted(DIST_ASSETS.glob("*.css"))
 
 
 # ------------------------------------------------------------------

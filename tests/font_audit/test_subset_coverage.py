@@ -1,12 +1,12 @@
 """観点1: サブセット網羅性。
 
-各埋め込みフォント(dela/wdxl)が、自分の担当する全 displayLabel の文字
-(空白除く)を cmap に持つかを検証する。フォント→必要文字の割り当ては
-panels.ts を真実源にして sources.py が導出する(テストにハードコードしない)。
+各埋め込みラベルフォント(panels.ts の labelFont が指すもの。現状 wdxl のみ)が、
+自分の担当する全 displayLabel の文字(空白除く)を cmap に持つかを検証する。
+フォント→必要文字の割り当ては panels.ts を真実源にして sources.py が導出する
+(テストにハードコードしない)。
 
-【重要】現状は Dela サブセットが「る」(U+308B)を欠くため、services パネルの
-'お力になれること' が満たせず、このテストは *意図的に RED* になる。
-GREEN 化はフォント再生成で行う(README の engineer 向け提案を参照)。
+詳細ページ見出し用の Dela Gothic One は DOM テキスト向けに index.css の
+@font-face で配信されるためここでは見ない(dist 検査 観点2/3 でカバー)。
 ビルド不要(src/assets/fonts を直接読む)なので常に実行される。
 """
 

@@ -19,6 +19,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PANELS_TS = REPO_ROOT / "src" / "data" / "panels.ts"
 LABEL_FONTS_TS = REPO_ROOT / "src" / "three" / "hud" / "labelFonts.ts"
+INDEX_CSS = REPO_ROOT / "src" / "index.css"
 FONTS_DIR = REPO_ROOT / "src" / "assets" / "fonts"
 DIST_ASSETS = REPO_ROOT / "dist" / "assets"
 
@@ -37,6 +38,21 @@ class FontBinding:
     family: str
     woff2_filename: str
     required_chars: frozenset[str]
+
+
+@dataclass(frozen=True)
+class DeliveredFont:
+    """dist に woff2 を伴って配信される登録フォント 1 件(配信経路つき)。
+
+    - family:         登録ファミリ名(FontFace 第1引数 / @font-face の font-family)。
+    - woff2_filename: src/assets/fonts 配下のソース woff2 ファイル名。
+    - route:          'js'  = labelFonts.ts の FontFace 登録(JS バンドルから URL 参照)
+                      'css' = index.css の @font-face(CSS バンドルから url() 参照)。
+    """
+
+    family: str
+    woff2_filename: str
+    route: str
 
 
 def _read(path: Path) -> str:
@@ -209,3 +225,64 @@ def font_bindings() -> list[FontBinding]:
 def registered_families() -> set[str]:
     """FACES に登録された全ファミリ名(family 名整合テスト用)。"""
     return set(_extract_faces_family_to_var().keys())
+
+
+# ------------------------------------------------------------------
+# index.css: @font-face(CSS 経路)の family → woff2 ファイル名
+# ------------------------------------------------------------------
+# DOM テキスト用フォント(例: 詳細ページ見出しの Dela Gothic One)は JS の
+# FontFace ではなく index.css の @font-face で配信される。dist 成果物検査では
+# この CSS 経路も「登録フォント」として数える。
+
+
+def _extract_css_font_face_map() -> dict[str, str]:
+    """index.css の @font-face から family → woff2 ファイル名の対応を返す。
+
+    url が .woff2 でないブロックは対象外。@font-face が 1 つも無いのは
+    「CSS 経路のフォントが無い構成」として合法(空 dict)だが、ブロックは
+    あるのに 1 件も解釈できない場合はパーサ崩れとして例外にする。
+    """
+    src = _read(INDEX_CSS)
+    blocks = re.findall(r"@font-face\s*\{([^}]*)\}", src)
+    out: dict[str, str] = {}
+    for block in blocks:
+        fam = re.search(r"font-family\s*:\s*['\"]([^'\"]+)['\"]", block)
+        url = re.search(r"url\(\s*['\"]?([^'\")]+\.woff2)['\"]?\s*\)", block)
+        if fam and url:
+            out[fam.group(1)] = url.group(1).rsplit("/", 1)[-1]
+    if blocks and not out:
+        raise ValueError(
+            "index.css: @font-face ブロックはあるが family/woff2 URL を解釈できなかった"
+            "(記法が変わった可能性。sources.py のパーサを更新してください)"
+        )
+    return out
+
+
+def delivered_fonts() -> list[DeliveredFont]:
+    """dist に woff2 が出力されるべき登録フォント一覧(JS + CSS の両経路)。
+
+    - JS 経路:  labelFonts.ts の FACES(FontFace 登録)と woff2 import の突き合わせ。
+    - CSS 経路: index.css の @font-face(url が .woff2 のもの)。
+    dist 成果物検査(観点2/3)の真実源。ラベル用途かどうかは問わない。
+    """
+    family_to_var = _extract_faces_family_to_var()
+    var_to_file = _extract_import_var_to_file()
+
+    fonts: list[DeliveredFont] = []
+    for family, var in sorted(family_to_var.items()):
+        filename = var_to_file.get(var)
+        if filename is None:
+            raise ValueError(
+                f"FACES の url 変数 '{var}' に対応する woff2 import が無い"
+            )
+        fonts.append(DeliveredFont(family=family, woff2_filename=filename, route="js"))
+
+    for family, filename in sorted(_extract_css_font_face_map().items()):
+        fonts.append(DeliveredFont(family=family, woff2_filename=filename, route="css"))
+
+    if not fonts:
+        raise ValueError(
+            "配信フォントが 0 件(labelFonts.ts の FACES も index.css の @font-face も空)。"
+            "パースに失敗している可能性"
+        )
+    return fonts

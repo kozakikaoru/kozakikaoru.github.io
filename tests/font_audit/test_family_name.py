@@ -1,7 +1,7 @@
 """観点4: family 名整合。
 
-各 woff2 の name table のファミリ名が、labelFonts.ts の FontFace 登録名
-(FACES.family。例: 'Dela Gothic One' / 'WDXL Lubrifont JP N')と一致するか。
+各ラベルフォント woff2 の name table のファミリ名が、labelFonts.ts の
+FontFace 登録名(FACES.family。例: 'WDXL Lubrifont JP N')と一致するか。
 不一致だと FontFace(name, url) で登録した名前が実フォントの内部名とズレ、
 canvas の font-family 指定でヒットしない/フォールバックする恐れがある。
 
@@ -33,7 +33,7 @@ def test_registered_families_all_have_binding(bindings, registered_family_names)
     """labelFonts.ts の FACES に登録された全ファミリが、実際に検証対象になっている。
 
     「FACES に登録したが panels.ts のどのラベルからも使われない孤児フォント」を検出。
-    ※ 現状 dela/wdxl はいずれも使用中。将来 system 以外の未使用登録が増えたら気づける。
+    ※ 現状の登録は wdxl のみ(全パネルで使用中)。将来未使用登録が増えたら気づける。
     """
     bound_families = {b.family for b in bindings}
     orphans = registered_family_names - bound_families

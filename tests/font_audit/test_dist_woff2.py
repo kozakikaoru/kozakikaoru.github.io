@@ -2,6 +2,8 @@
 
 `npm run build` 後、dist/assets に woff2 が「ちょうど登録フォント数ぶん」出力され、
 各ファイルが woff2 のマジックナンバ `wOF2` で始まる妥当なバイナリであることを検証。
+「登録フォント」は JS 経路(labelFonts.ts の FontFace)と CSS 経路
+(index.css の @font-face)の合計(conftest の deliveries fixture)。
 未ビルドなら skip(conftest の dist_woff2_files fixture)。
 """
 
@@ -11,17 +13,19 @@ from __future__ import annotations
 WOFF2_MAGIC = b"wOF2"
 
 
-def test_dist_woff2_count_matches_registered_fonts(dist_woff2_files, bindings):
-    """dist の woff2 数が、検証対象フォント数(= panels.ts で使われる埋め込みフォント数)と一致。
+def test_dist_woff2_count_matches_registered_fonts(dist_woff2_files, deliveries):
+    """dist の woff2 数が、登録フォント数(JS: FACES + CSS: @font-face の合計)と一致。
 
-    現状は dela/wdxl の 2 つ。数を bindings から導くのでフォント増減に追随する。
+    現状は wdxl(JS 配信)と Dela Gothic One(CSS 配信)の 2 つ。数を deliveries
+    (labelFonts.ts / index.css のパース結果)から導くのでフォント増減に追随する。
     """
-    expected = len(bindings)
+    expected = len({d.woff2_filename for d in deliveries})
     actual = len(dist_woff2_files)
     names = ", ".join(p.name for p in dist_woff2_files)
     assert actual == expected, (
         f"dist/assets の woff2 は {expected} 個であるべきだが {actual} 個: [{names}]。"
-        " 数が少ないと data URI インライン化(vite assetsInlineLimit)を疑う"
+        " 少なければ data URI インライン化(vite assetsInlineLimit)を、"
+        "多ければ未登録フォントの混入を疑う"
     )
 
 
