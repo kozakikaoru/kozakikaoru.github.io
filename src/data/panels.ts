@@ -310,26 +310,32 @@ function portraitLayout(): Pick<HeroLayout, 'positions' | 'kind'> {
 }
 
 /**
- * 細長い縦(スマホ縦)配置: 大 ABOUT 最上段 → 小 4 枚を縦 1 列。
- * 大は COLUMN_LG_SCALE で圧縮済みの実寸を使う(カメラが引きすぎないように)。
- * 各行間 > 上下パネルの halfH の和 で y 方向に完全分離。
+ * スマホ縦配置: 3 段(上=大 ABOUT / 中=小2枚 / 下=小2枚)の 1+2+2。
+ * 縦 1 列だと縦に長すぎて下段が見切れる(ユーザーFB)ため、小 4 枚を 2 枚ずつ横並びにする。
+ * 大は COLUMN_LG_SCALE で圧縮済みの実寸(sizeMapColumn)。
+ * 非重複: 列間 cx=md.w+colGap / 行間 ry=md.h+rowGap / ABOUT と上段の Δy を、いずれも
+ *   「半幅・半高の和 + 2*DECOR_MARGIN」以上に取る(findOverlaps で検証)。
  */
 function columnLayout(sizes: SizeMap): Pick<HeroLayout, 'positions' | 'kind'> {
-  const gap = 0.55; // 行間の余白(>= 2*DECOR_MARGIN=0.4。装飾のはみ出し込みで分離)
-  const order = ['about', 'music', 'works', 'career', 'contact'];
-  const positions: Record<string, [number, number, number]> = {};
-  // 上から順に積む。各パネル中心 y を、前パネルとの (halfH_prev + halfH_cur + gap) で決める。
-  let cursorY = 0;
-  order.forEach((id, i) => {
-    const half = sizes[id].h / 2;
-    if (i > 0) {
-      const prevHalf = sizes[order[i - 1]].h / 2;
-      cursorY -= prevHalf + half + gap; // 下へ降ろす
-    }
-    positions[id] = [0, cursorY, 0];
-  });
-  // カメラ y 合わせは centerY が担うので、ここは素の座標でよい。
-  return { kind: 'column', positions };
+  const lg = sizes.about; // 圧縮済み lg
+  const md = sizes.music; // 小パネル(md)
+  const colGap = 0.45; // 列間の余白(>= 2*DECOR_MARGIN=0.4)
+  const rowGap = 0.5; // 行間の余白(同上)
+  const cx = md.w + colGap; // 小 2 列の x 間隔
+  const ry = md.h + rowGap; // 小 2 行の y 間隔
+  const gridCy = -1.15; // 下段 2×2 の縦中心
+  // ABOUT 下端と上段中心の Δy が (lg.h/2 + md.h/2 + 2*DECOR_MARGIN) を超えるよう +0.5。
+  const aboutY = gridCy + ry / 2 + lg.h / 2 + md.h / 2 + 0.5;
+  return {
+    kind: 'column',
+    positions: {
+      about: [0, aboutY, 0],
+      music: [-cx / 2, gridCy + ry / 2, 0],
+      works: [cx / 2, gridCy + ry / 2, 0],
+      career: [-cx / 2, gridCy - ry / 2, 0],
+      contact: [cx / 2, gridCy - ry / 2, 0],
+    },
+  };
 }
 
 /**
@@ -406,7 +412,10 @@ export function layoutForAspect(aspect: number, fovDeg = 42): HeroLayout {
 
   // 配置の y 重心にカメラを合わせ、パネル群を画面中央に置く。
   // camY を先に確定し、fitCameraZ にも渡す(縁判定を実投影と一致させるため)。
-  const cameraY = centerY(base.positions);
+  let cameraY = centerY(base.positions);
+  // スマホ(column=1+2+2)は横幅基準でカメラが引くぶん上下に余白が出る。上部の余白が
+  //   気になる(ユーザーFB)ので、column のときだけカメラをやや下げて内容を上に詰める。
+  if (base.kind === 'column') cameraY -= 1.6;
   const cameraZ = fitCameraZ(base.positions, sizes, aspect, fovDeg, cameraY);
 
   return { ...base, sizes, cameraZ, cameraY };
