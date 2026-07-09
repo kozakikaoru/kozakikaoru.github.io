@@ -161,10 +161,13 @@ export const PANEL_SIZES: Record<PanelSize, { w: number; h: number }> = {
 // = はみ出しても重ならないことが数式的に保証される(assertNoOverlap で全レイアウト検証)。
 export const DECOR_MARGIN = 0.2;
 
-/** スマホ縦(column)で大パネルに掛ける縮小率。画角の圧迫を抑える。 */
-// lg(4.2×2.9)×0.84 ≈ 3.53×2.44。md 比は w≈1.22 / h≈1.57(ABOUT を縦長ヒーローに
-// する意図どおり高さは残し、幅方向をしっかり圧縮してスマホ縦での占有を抑える)。
-const COLUMN_LG_SCALE = 0.84;
+/** スマホ縦(column)で大パネル(ABOUT)に掛ける縮小率。 */
+// 新スマホ配置では ABOUT を「最も広い要素=横幅フル」にするため縮小しない(=1)。
+// 小4枚は左右交互にし、その横幅が ABOUT 内に収まるよう配置する。
+const COLUMN_LG_SCALE = 1;
+// スマホ縦で小4枚(md)に掛ける縮小率。ABOUT(横幅フル)との対比を付けつつ、左右交互で
+// 角の重なりを「ちょっと」に抑えるため小さめにする(ユーザーFB)。
+const COLUMN_MD_SCALE = 0.72;
 
 /** レイアウト種別ごとの、パネル id → 実寸(w,h)。 */
 type SizeMap = Record<string, { w: number; h: number }>;
@@ -184,7 +187,7 @@ function sizeMapColumn(): SizeMap {
     m[p.id] =
       p.size === 'lg'
         ? { w: base.w * COLUMN_LG_SCALE, h: base.h * COLUMN_LG_SCALE }
-        : base;
+        : { w: base.w * COLUMN_MD_SCALE, h: base.h * COLUMN_MD_SCALE };
   }
   return m;
 }
@@ -200,6 +203,8 @@ export function panelBaseSize(size: PanelSize): { w: number; h: number } {
 
 /** column 配置で lg に掛ける縮小率(GlassPanel が scale に使う)。 */
 export const COLUMN_LG_PANEL_SCALE = COLUMN_LG_SCALE;
+/** column 配置で md(小4枚)に掛ける縮小率(GlassPanel が scale に使う)。 */
+export const COLUMN_MD_PANEL_SCALE = COLUMN_MD_SCALE;
 
 // ------------------------------------------------------------------
 // レスポンシブ・レイアウト
@@ -310,32 +315,29 @@ function portraitLayout(): Pick<HeroLayout, 'positions' | 'kind'> {
 }
 
 /**
- * スマホ縦配置: 3 段(上=大 ABOUT / 中=小2枚 / 下=小2枚)の 1+2+2。
- * 縦 1 列だと縦に長すぎて下段が見切れる(ユーザーFB)ため、小 4 枚を 2 枚ずつ横並びにする。
- * 大は COLUMN_LG_SCALE で圧縮済みの実寸(sizeMapColumn)。
- * 非重複: 列間 cx=md.w+colGap / 行間 ry=md.h+rowGap / ABOUT と上段の Δy を、いずれも
- *   「半幅・半高の和 + 2*DECOR_MARGIN」以上に取る(findOverlaps で検証)。
+ * スマホ縦配置: 上=大 ABOUT を横幅フル、その下に小 4 枚を「左右交互のレンガ状」に積む。
+ *   ユーザーFB: ABOUT はスマホでは横幅いっぱい / 小4枚は交互(角同士が少し重なるのは OK)。
+ * ABOUT を最も広い要素にする(sizeMapColumn で縮小しない=1)ことで、カメラが ABOUT 幅に
+ *   フィットして ABOUT が横幅フルになる。小4枚(左右2列)の横幅は ABOUT 内に収める。
+ * 交互配置: 左列(music/career)と右列(works/contact)を縦に半段(voff)ずらして互い違いに。
+ *   縦間隔を詰めるので隣接パネルの角が少し重なる(findOverlaps は実行時アサートしないので可)。
  */
 function columnLayout(sizes: SizeMap): Pick<HeroLayout, 'positions' | 'kind'> {
-  const lg = sizes.about; // 圧縮済み lg
   const md = sizes.music; // 小パネル(md)
-  const colGap = 0.45; // 列間の余白(>= 2*DECOR_MARGIN=0.4)
-  const rowGap = 0.5; // 行間の余白(同上)
-  const cx = md.w + colGap; // 小 2 列の x 間隔
-  const ry = md.h + rowGap; // 小 2 行の y 間隔
-  const gridCy = -1.15; // 下段 2×2 の縦中心
-  // ABOUT 下端と上段中心の Δy が (lg.h/2 + md.h/2 + 2*DECOR_MARGIN) を超えるよう +0.5。
-  const aboutY = gridCy + ry / 2 + lg.h / 2 + md.h / 2 + 0.5;
-  return {
-    kind: 'column',
-    positions: {
-      about: [0, aboutY, 0],
-      music: [-cx / 2, gridCy + ry / 2, 0],
-      works: [cx / 2, gridCy + ry / 2, 0],
-      career: [-cx / 2, gridCy - ry / 2, 0],
-      contact: [cx / 2, gridCy - ry / 2, 0],
-    },
+  const about = sizes.about; // full lg(最も広い要素=横幅フル)
+  const sx = 0.8; // 左右交互の横オフセット(ABOUT 幅内に収まる)
+  const step = 0.8; // 縦ステップ(縮小 md 高よりやや詰めて角を薄く重ねる)
+  const topY = 0; // 最上段(music)の中心 y
+  // music→works→career→contact を左右交互のジグザグに(角同士が少し重なる)。
+  const positions: Record<string, [number, number, number]> = {
+    music: [-sx, topY, 0],
+    works: [sx, topY - step, 0],
+    career: [-sx, topY - 2 * step, 0],
+    contact: [sx, topY - 3 * step, 0],
   };
+  // ABOUT は 4 枚の上に横幅フルで。最上段(music)の上に小さめの間を空けて置く。
+  positions.about = [0, topY + md.h / 2 + 0.3 + about.h / 2, 0];
+  return { kind: 'column', positions };
 }
 
 /**
@@ -413,9 +415,10 @@ export function layoutForAspect(aspect: number, fovDeg = 42): HeroLayout {
   // 配置の y 重心にカメラを合わせ、パネル群を画面中央に置く。
   // camY を先に確定し、fitCameraZ にも渡す(縁判定を実投影と一致させるため)。
   let cameraY = centerY(base.positions);
-  // スマホ(column=1+2+2)は横幅基準でカメラが引くぶん上下に余白が出る。上部の余白が
-  //   気になる(ユーザーFB)ので、column のときだけカメラをやや下げて内容を上に詰める。
-  if (base.kind === 'column') cameraY -= 1.6;
+  // スマホ(column)は ABOUT 幅基準でカメラが引くぶん上下に余白が出る。上部の余白が気になる
+  //   (ユーザーFB)ので、column のときだけカメラをやや下げて内容を上に詰める。
+  //   ※ 下げすぎると ABOUT が縦フィット側に切り替わり横幅フルでなくなるため控えめに。
+  if (base.kind === 'column') cameraY -= 0.3;
   const cameraZ = fitCameraZ(base.positions, sizes, aspect, fovDeg, cameraY);
 
   return { ...base, sizes, cameraZ, cameraY };

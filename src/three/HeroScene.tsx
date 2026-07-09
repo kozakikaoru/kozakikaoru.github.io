@@ -12,6 +12,7 @@ import {
   PANELS,
   layoutForAspect,
   COLUMN_LG_PANEL_SCALE,
+  COLUMN_MD_PANEL_SCALE,
 } from '../data/panels';
 import { GlassPanel } from './GlassPanel';
 import { Particles } from './Particles';
@@ -154,11 +155,13 @@ export function HeroScene({
 
       {/* パネル5枚(配置はアスペクト比に応じて切替) */}
       {PANELS.map((panel, i) => {
-        // column(スマホ縦)では大パネル(lg)だけ圧縮する。
+        // column(スマホ縦)ではパネルを縮小する(ABOUT=横幅フル / 小4枚=交互で小さめ)。
         // panels.ts の sizeMapColumn と同じ縮小率をパネル実寸に掛ける。
         const sizeScale =
-          layout.kind === 'column' && panel.size === 'lg'
-            ? COLUMN_LG_PANEL_SCALE
+          layout.kind === 'column'
+            ? panel.size === 'lg'
+              ? COLUMN_LG_PANEL_SCALE
+              : COLUMN_MD_PANEL_SCALE
             : 1;
         return (
           <GlassPanel
