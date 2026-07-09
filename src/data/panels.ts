@@ -75,9 +75,9 @@ export const PANELS: PanelDef[] = [
   {
     id: 'works',
     to: '/works',
-    label: 'プロダクト',
-    displayLabel: 'プロダクト',
-    sub: 'PRODUCTS',
+    label: '開発作品',
+    displayLabel: '開発作品',
+    sub: 'WORKS',
     description: '開発した作品たち',
     position: [0, 0.75, 0],
     // works=薄めのクリムゾン(ユーザーFB「クリムゾンで薄目」)。ビビッド #ff2e4c を一段ライトに。

@@ -12,8 +12,8 @@ const ACCENT = '#ff5566';
 export default function Works() {
   return (
     <PageShell
-      title="プロダクト"
-      sub="PRODUCTS"
+      title="開発作品"
+      sub="WORKS"
       lead="個人開発のアプリやツールたち。GitHub で公開しているものを載せています。（スクリーンショットは準備中のため、GitHub の自動生成画像を仮置きしています）"
       accent={ACCENT}
     >
