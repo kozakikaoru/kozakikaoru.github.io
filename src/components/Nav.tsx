@@ -1,6 +1,8 @@
 // 全ページ共通のヘッダーナビゲーション。
-// PC(md+): サイト名を画面左端・ページリンクを中央・時間帯スイッチャーを画面右端に配置。
-// スマホ(md 未満): サイト名 + ハンバーガー(ページリンク + 時間帯スイッチャーを格納)。
+// PC(lg+): サイト名を画面左端・ページリンクを中央・時間帯スイッチャーを画面右端に配置。
+// スマホ/タブレット(lg 未満): サイト名 + ハンバーガー(ページリンク + 時間帯スイッチャーを格納)。
+//   ※ 和文5リンク + サイト名 + 時間帯を横一列に収めるには幅が要るため、切替境界を lg(1024px)に上げる
+//     (md=768px だと入りきらず崩れる・ユーザーFB)。
 // 背景(朝の明るい空〜夜)に依らず読めるよう、上部に暗いスクリム(グラデ)を敷く。
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router';
@@ -33,7 +35,7 @@ export function Nav() {
 
         {/* ページリンク(PC・画面中央)= 素のテキストリンク。絶対配置で中央寄せ。 */}
         <nav
-          className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-5 md:flex"
+          className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-5 lg:flex"
           aria-label="メインナビゲーション"
         >
           {PANELS.map((p) => (
@@ -51,14 +53,14 @@ export function Nav() {
         </nav>
 
         {/* 時間帯スイッチャー(PC・画面右端)。 */}
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <TimeSwitcher />
         </div>
 
         {/* ハンバーガー(スマホのみ・右端)。ページリンク + 時間帯スイッチャーを開閉。 */}
         <button
           type="button"
-          className="glass-dark inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 md:hidden"
+          className="glass-dark inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 lg:hidden"
           aria-label={menuOpen ? 'メニューを閉じる' : 'メニューを開く'}
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
@@ -87,7 +89,13 @@ export function Nav() {
       {menuOpen && (
         <div
           id="mobile-menu"
-          className="glass-dark relative z-10 mx-4 mb-2 rounded-2xl p-4 md:hidden"
+          // 背景が明るい時間帯でも文字が読めるよう、ほぼ不透明の濃色にする(ユーザーFB)。
+          className="relative z-10 mx-4 mb-2 rounded-2xl border border-white/12 p-4 shadow-2xl lg:hidden"
+          style={{
+            background: 'rgba(8, 13, 28, 0.96)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+          }}
         >
           <nav
             className="flex flex-col gap-0.5"
@@ -98,13 +106,12 @@ export function Nav() {
                 key={p.id}
                 to={p.to}
                 onClick={() => setMenuOpen(false)}
-                className={({ isActive }) =>
-                  `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'text-neon-glow'
-                      : 'text-white/80 hover:bg-white/10 hover:text-white'
-                  }`
-                }
+                className="rounded-lg px-3 py-2 text-base font-medium transition-colors hover:bg-white/10"
+                // 色は index.css の a{color:inherit}(レイヤー外)に負けるため、className ではなく
+                //   style で直接指定する(白/現在ページは発光色)。デスクトップ側と同じ対策。
+                style={({ isActive }) => ({
+                  color: isActive ? 'var(--color-neon-glow)' : '#fff',
+                })}
               >
                 {p.label}
               </NavLink>
