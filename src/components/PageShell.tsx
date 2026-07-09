@@ -5,7 +5,6 @@
 //   - 本文カード等は HudKit(HudCard 等)を使う。ライト系ガラス(旧パステル)は使わない
 // ページ遷移時に軽いフェードアップ演出(prefers-reduced-motion で無効)。
 import type { CSSProperties, ReactNode } from 'react';
-import { Link } from 'react-router';
 import { MONO } from './HudKit';
 
 interface PageShellProps {
@@ -33,16 +32,8 @@ export function PageShell({
       className="relative z-10 mx-auto min-h-screen w-full max-w-5xl px-4 pb-16 pt-28 sm:px-6 sm:pt-32"
       style={{ '--page-accent': accent } as CSSProperties}
     >
-      {/* 戻り導線(モノスペースの小チップ) */}
-      <Link
-        to="/"
-        className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#0a1526]/60 px-3.5 py-1.5 text-[11px] tracking-[0.25em] text-white/75 backdrop-blur transition-colors hover:text-white"
-        style={{ fontFamily: MONO }}
-      >
-        <span aria-hidden="true">←</span> HOME
-      </Link>
-
-      {/* ページヘッダー */}
+      {/* ページヘッダー(ホームへはヘッダーのサイト名リンクから戻れるため、
+          ページ内の「HOME」戻りチップはユーザーFBで撤去) */}
       <header className="mb-10 [animation:var(--animate-fade-up)]">
         {/* セクションタグ + ヘアライン(HUD の計器ラベル風) */}
         <div className="mb-3 flex items-center gap-3">
