@@ -61,6 +61,20 @@ export function Hero() {
     return () => cancelAnimationFrame(r);
   }, []);
 
+  // TOP はスクロールさせない(スマホ Safari では 100dvh を超えて下にスクロールでき、
+  //   下段パネルがブラウザ UI 裏に隠れてしまうため)。マウント中だけ body/html の overflow を
+  //   ロックし、離脱(サブページ遷移でアンマウント)で元に戻す。
+  useEffect(() => {
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
+    };
+  }, []);
+
   const use3D = cap.ready && cap.canRender3D && !crashed;
 
   // DOM ホットスポット(透明な実リンク層)を 3D パネルの実投影位置に追従させる。
@@ -74,7 +88,7 @@ export function Hero() {
 
   return (
     <section
-      className="relative h-screen w-full overflow-hidden transition-opacity duration-300"
+      className="relative h-dvh w-full overflow-hidden transition-opacity duration-300"
       style={{ opacity: leaving || !shown ? 0 : 1 }}
       aria-label="ヒーロー"
     >
