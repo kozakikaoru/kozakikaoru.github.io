@@ -72,7 +72,7 @@ export const HUD_THEMES: Record<string, HudTheme> = {
   music: {
     icon: 'music',
     seriesCode: 'SND',
-    caption: 'SOUND LAB',
+    caption: 'SOUND // AI',
     subReadout: 'BPM 124',
     statusTag: 'ON AIR',
     chart: 'bars', // 縦バー=イコライザ風(音楽にそのまま合う)
