@@ -209,11 +209,13 @@ export function makeOuterBracketsGeometry(
 export function makeRegistrationMarksGeometry(
   width: number,
   height: number,
+  // 角から内側への距離(呼び出し側が渡す)。間隔は固定でコンパクトに保ちつつ、大パネル(lg=ABOUT)
+  //   だけ大きめの値を渡してクラスタを内側=右上サブ情報テキストの真下へ寄せる。md は従来の 0.42。
+  inset = 0.42,
 ): THREE.BufferGeometry {
   const pts: number[] = [];
   const hw = width / 2;
   const hh = height / 2;
-  const inset = 0.42; // 角から内側へ
   const s = 0.07; // 十字の腕
   const r = 0.05; // 小円
   const corners = DECOR_CORNERS;

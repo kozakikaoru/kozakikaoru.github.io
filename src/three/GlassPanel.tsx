@@ -261,8 +261,10 @@ export function GlassPanel({
   );
   // コーナー・レジストレーションマーク(角のターゲット十字 + 小円)。
   const regMarkGeometry = useMemo(
-    () => makeRegistrationMarksGeometry(PANEL_W, PANEL_H),
-    [PANEL_W, PANEL_H],
+    // lg(ABOUT)は角からの inset を大きくして、右上マークをサブ情報テキストの真下へ寄せる
+    //   (間隔は md と同じ固定でコンパクトに保ち、クラスタ位置だけ内側へ)。
+    () => makeRegistrationMarksGeometry(PANEL_W, PANEL_H, isLarge ? 0.56 : 0.42),
+    [PANEL_W, PANEL_H, isLarge],
   );
   const nubGeometry = useMemo(
     () => makeConnectorNubsGeometry(PANEL_W, PANEL_H, NUB_LEN, NUB_TIP),
@@ -917,7 +919,13 @@ export function GlassPanel({
       {richDecor && (
         <mesh
           ref={statusRef}
-          position={[PANEL_W / 2 - 0.3, PANEL_H / 2 - 0.3, PANEL_D / 2 + 0.02]}
+          // 右上サブ情報テキストの真下へ。md は従来どおり角から 0.3(=1.15, 0.475)。
+          //   lg(ABOUT)は角から 0.44 と大きめに取り、テキスト真下・登録マークとコンパクトな間隔で並ぶ。
+          position={[
+            PANEL_W / 2 - (isLarge ? 0.44 : 0.3),
+            PANEL_H / 2 - (isLarge ? 0.44 : 0.3),
+            PANEL_D / 2 + 0.02,
+          ]}
           raycast={NO_RAYCAST}
           frustumCulled={false}
           renderOrder={3}
