@@ -167,7 +167,7 @@ export const DECOR_MARGIN = 0.2;
 const COLUMN_LG_SCALE = 1;
 // スマホ縦で小4枚(md)に掛ける縮小率。ABOUT(横幅フル)との対比を付けつつ、左右交互で
 // 角の重なりを「ちょっと」に抑えるため小さめにする(ユーザーFB)。
-const COLUMN_MD_SCALE = 0.72;
+const COLUMN_MD_SCALE = 1.1;
 
 /** レイアウト種別ごとの、パネル id → 実寸(w,h)。 */
 type SizeMap = Record<string, { w: number; h: number }>;
@@ -325,8 +325,8 @@ function portraitLayout(): Pick<HeroLayout, 'positions' | 'kind'> {
 function columnLayout(sizes: SizeMap): Pick<HeroLayout, 'positions' | 'kind'> {
   const md = sizes.music; // 小パネル(md)
   const about = sizes.about; // full lg(最も広い要素=横幅フル)
-  const sx = 0.8; // 左右交互の横オフセット(ABOUT 幅内に収まる)
-  const step = 0.8; // 縦ステップ(縮小 md 高よりやや詰めて角を薄く重ねる)
+  const sx = 0.86; // 左右交互の横オフセット
+  const step = 1.8; // 縦ステップ(縦の間隔を開けて画面縦を埋める・角が少しだけ重なる程度)
   const topY = 0; // 最上段(music)の中心 y
   // music→works→career→contact を左右交互のジグザグに(角同士が少し重なる)。
   const positions: Record<string, [number, number, number]> = {
