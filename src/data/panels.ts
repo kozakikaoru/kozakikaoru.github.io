@@ -165,9 +165,11 @@ export const DECOR_MARGIN = 0.2;
 // 新スマホ配置では ABOUT を「最も広い要素=横幅フル」にするため縮小しない(=1)。
 // 小4枚は左右交互にし、その横幅が ABOUT 内に収まるよう配置する。
 const COLUMN_LG_SCALE = 1;
-// スマホ縦で小4枚(md)に掛ける縮小率。ABOUT(横幅フル)との対比を付けつつ、左右交互で
-// 角の重なりを「ちょっと」に抑えるため小さめにする(ユーザーFB)。
-const COLUMN_MD_SCALE = 1.1;
+// スマホ縦で小4枚(md)に掛ける縮小率。小4枚は ABOUT の横幅内に収まる 2×2 グリッドにする
+// (1 + 2×2)。2 枚をちょうど ABOUT 幅に収める(inscribe)ため、
+//   グリッド列間 = ABOUT.w - 2*(md.w*SCALE) >= 2*DECOR_MARGIN(=0.4)を満たす最大値。
+//   ABOUT.w=4.7・md.w=2.9 → SCALE<=0.741。装飾がぎりぎり触れる程度に詰めて 0.74。
+const COLUMN_MD_SCALE = 0.74;
 
 /** レイアウト種別ごとの、パネル id → 実寸(w,h)。 */
 type SizeMap = Record<string, { w: number; h: number }>;
@@ -315,28 +317,36 @@ function portraitLayout(): Pick<HeroLayout, 'positions' | 'kind'> {
 }
 
 /**
- * スマホ縦配置: 上=大 ABOUT を横幅フル、その下に小 4 枚を「左右交互のレンガ状」に積む。
- *   ユーザーFB: ABOUT はスマホでは横幅いっぱい / 小4枚は交互(角同士が少し重なるのは OK)。
- * ABOUT を最も広い要素にする(sizeMapColumn で縮小しない=1)ことで、カメラが ABOUT 幅に
- *   フィットして ABOUT が横幅フルになる。小4枚(左右2列)の横幅は ABOUT 内に収める。
- * 交互配置: 左列(music/career)と右列(works/contact)を縦に半段(voff)ずらして互い違いに。
- *   縦間隔を詰めるので隣接パネルの角が少し重なる(findOverlaps は実行時アサートしないので可)。
+ * スマホ縦配置: 上=大 ABOUT を横幅フル、その下に小 4 枚を 2×2 グリッド(1 + 2×2)。
+ *   旧: 小4枚を左右交互のジグザグ(1枚/行)にしていたが、片側が常に空いて余白が目立つ+
+ *       4段で縦に長くカメラが引く→全体が小さい、とユーザーFB。
+ *   → 2枚/行のグリッドで横を埋め、行数も 4→2 に減らして縦にコンパクトにする。
+ *      カメラが近づき、ABOUT も小4枚のペアも大きく・上下左右の余白も減る。
+ * ABOUT を最も広い要素(縮小しない=1)にし、小4枚の 2×2 グリッド外縁を ABOUT の左右端に
+ *   合わせる(inscribe)。カメラが ABOUT 幅にフィット → ABOUT 横幅フル、
+ *   小4枚のペアが同じ幅を埋める密な構図になる。
+ * 列中心 colCx=(ABOUT.w-md.w)/2 で外縁が ABOUT 端と一致。列間=ABOUT.w-2*md.w は
+ *   COLUMN_MD_SCALE=0.74 のとき >= 2*DECOR_MARGIN(=0.4)で装飾も重ならない。
  */
 function columnLayout(sizes: SizeMap): Pick<HeroLayout, 'positions' | 'kind'> {
   const md = sizes.music; // 小パネル(md)
-  const about = sizes.about; // full lg(最も広い要素=横幅フル)
-  const sx = 0.86; // 左右交互の横オフセット
-  const step = 1.8; // 縦ステップ(縦の間隔を開けて画面縦を埋める・角が少しだけ重なる程度)
-  const topY = 0; // 最上段(music)の中心 y
-  // music→works→career→contact を左右交互のジグザグに(角同士が少し重なる)。
+  const about = sizes.about; // 大パネル(横幅の基準=ヒーロー)
+  // 2 列の中心 x。外縁(colCx + md.w/2)を ABOUT 半幅に合わせる(inscribe)。
+  const colCx = (about.w - md.w) / 2;
+  // 2 行の中心間隔。行間 rowGap は装飾込みで重ならないよう 2*DECOR_MARGIN 以上。
+  const rowGap = 0.5;
+  const rowStep = md.h + rowGap;
+  // グリッド中心 gridCy。その上に ABOUT を gap(0.5)空けて載せる。
+  //   ※ camY は内容の外接ボックス中央に自動追従するので gridCy の絶対値は構図に影響しない。
+  const gridCy = -1.9;
+  const aboutY = gridCy + rowStep / 2 + md.h / 2 + 0.5 + about.h / 2;
   const positions: Record<string, [number, number, number]> = {
-    music: [-sx, topY, 0],
-    works: [sx, topY - step, 0],
-    career: [-sx, topY - 2 * step, 0],
-    contact: [sx, topY - 3 * step, 0],
+    music: [-colCx, gridCy + rowStep / 2, 0],
+    works: [colCx, gridCy + rowStep / 2, 0],
+    career: [-colCx, gridCy - rowStep / 2, 0],
+    contact: [colCx, gridCy - rowStep / 2, 0],
+    about: [0, aboutY, 0],
   };
-  // ABOUT は 4 枚の上に横幅フルで。最上段(music)の上に小さめの間を空けて置く。
-  positions.about = [0, topY + md.h / 2 + 0.3 + about.h / 2, 0];
   return { kind: 'column', positions };
 }
 
@@ -415,11 +425,22 @@ export function layoutForAspect(aspect: number, fovDeg = 42): HeroLayout {
   // 配置の y 重心にカメラを合わせ、パネル群を画面中央に置く。
   // camY を先に確定し、fitCameraZ にも渡す(縁判定を実投影と一致させるため)。
   let cameraY = centerY(base.positions);
-  // スマホ(column)は ABOUT 幅基準でカメラが引くぶん上下に余白が出る。上部の余白が気になる
-  //   (ユーザーFB)ので、column のときだけカメラをやや下げて内容を上に詰める。
-  //   ※ 下げすぎると ABOUT が縦フィット側に切り替わり横幅フルでなくなるため控えめに。
-  if (base.kind === 'column') cameraY -= 0.3;
-  const cameraZ = fitCameraZ(base.positions, sizes, aspect, fovDeg, cameraY);
+  let fitMargin = 1.1;
+  if (base.kind === 'column') {
+    // スマホ(2×2 グリッド)は下段2枚 + 小4枚に重心(centerY)が引っ張られ、内容の実際の
+    //   中心より下に来る。→ 内容の外接ボックス中央を画面中央に合わせ直す(やや上寄せ)。
+    //   画面中央の world y = camY*0.4(CameraRig の lookAt が camY*0.4 のため)。
+    let top = -Infinity;
+    let bottom = Infinity;
+    for (const [id, [, y]] of Object.entries(base.positions)) {
+      top = Math.max(top, y + sizes[id].h / 2);
+      bottom = Math.min(bottom, y - sizes[id].h / 2);
+    }
+    const midY = (top + bottom) / 2;
+    cameraY = (midY - 0.25) / 0.4; // -0.25: 内容をわずかに上へ寄せる
+    fitMargin = 1.06; // スマホは端の余白を詰めてパネルを大きく見せる
+  }
+  const cameraZ = fitCameraZ(base.positions, sizes, aspect, fovDeg, cameraY, fitMargin);
 
   return { ...base, sizes, cameraZ, cameraY };
 }
