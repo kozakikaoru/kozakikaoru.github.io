@@ -1,9 +1,8 @@
-// レコード/ターンテーブル風の試聴プレイヤー(画像アセット無し・CSS と SVG だけで描画)。
-//   - 左: 回転するレコード盤(再生中のみ回る)+ トーンアーム(すべて装飾 = aria-hidden)
-//   - 右: 現在曲の情報とコントロール(前後・再生/一時停止・シーク)
-//   - 下: プレイリスト(クリックで曲切替。切替時は必ず停止し、再生はユーザー操作起点のみ)
-// 音源(Track.src)が無い曲は COMING SOON 表示にして再生系 UI を無効化する。
-// <audio> は 1 個だけ持ち、曲切替は src の差し替えで行う(src 変更でブラウザ側も自動リセット)。
+// CD 風の試聴プレイヤー(PC は 1 画面に収まる 2 カラム構成)。
+//   - 左: CD 盤(再生中のみ回転・盤面はキャラアート画像)+ その下にシークバーと操作ボタン
+//   - 右: 曲リスト(スクロール)。各行 = 最小化アイコン + 曲名 + 再生時間(音源なしは SOON)
+//   - 下: 選択中の曲の歌詞(空行でブロック分割・表示/隠すトグル)
+// 音源(Track.src)が無い曲は再生系 UI を無効化する。<audio> は 1 個・曲切替は src 差し替え。
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import {
@@ -15,6 +14,7 @@ import {
   SectionHeading,
 } from '../HudKit';
 import { TRACKS } from '../../data/tracks';
+import type { Track } from '../../data/tracks';
 
 /** 秒を M:SS 表記にする(NaN / Infinity / 負値は 0:00 扱い)。 */
 function formatTime(sec: number): string {
@@ -47,6 +47,90 @@ function OnAirTag() {
       />
       <span style={{ color: 'var(--page-accent, #05d9e8)' }}>ON AIR</span>
     </MonoTag>
+  );
+}
+
+/** CD 盤面(画像 or グラデ)。中央ハブ + 穴 + 光沢は回転しない静的レイヤに分離する。 */
+function Disc({ track, playing }: { track: Track; playing: boolean }) {
+  return (
+    <div className="relative h-48 w-48 sm:h-52 sm:w-52">
+      {/* 回転する盤面(再生中のみ回る)。曲切替で key が変わり差し替わる。 */}
+      <div
+        key={track.id}
+        className="absolute inset-0 overflow-hidden rounded-full"
+        style={{
+          boxShadow: `0 14px 36px rgba(0, 0, 0, 0.55), 0 0 26px ${track.art.glow}33`,
+          animation: 'rp-spin 5s linear infinite',
+          animationPlayState: playing ? 'running' : 'paused',
+        }}
+      >
+        {track.art.image ? (
+          <img
+            src={track.art.image}
+            alt=""
+            draggable={false}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div
+            className="flex h-full w-full items-center justify-center"
+            style={{
+              background: `radial-gradient(circle at 35% 30%, ${track.art.c1}, ${track.art.c2})`,
+            }}
+          >
+            <span
+              className="text-3xl font-bold text-white/90"
+              style={{ fontFamily: MONO, textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
+            >
+              {track.art.initials}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* CD の光沢(光源は回らないので静的に重ねる) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-full opacity-80"
+        style={{
+          background:
+            'conic-gradient(from 210deg at 50% 50%, rgba(255,255,255,0.16), transparent 17%, rgba(255,255,255,0.05) 42%, transparent 60%, rgba(255,255,255,0.11) 80%, transparent 96%)',
+        }}
+      />
+
+      {/* 中央ハブ + 穴(CD の中心・回転しても対称なので静的) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 flex items-center justify-center"
+      >
+        <span
+          className="flex items-center justify-center rounded-full"
+          style={{
+            height: '13%',
+            width: '13%',
+            background: 'rgba(10, 15, 26, 0.28)',
+            border: '1px solid rgba(255, 255, 255, 0.55)',
+            boxShadow: '0 0 5px rgba(0,0,0,0.45)',
+          }}
+        >
+          <span
+            className="rounded-full"
+            style={{
+              height: '32%',
+              width: '32%',
+              background: '#0a0f1a',
+              boxShadow: 'inset 0 0 2px rgba(0,0,0,0.9)',
+            }}
+          />
+        </span>
+      </div>
+
+      {/* 外周リング(輪郭の締め) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-full border border-white/15"
+      />
+    </div>
   );
 }
 
@@ -93,7 +177,6 @@ export function RecordPlayer() {
     }
     setPlaying(true);
     audio.play().catch(() => {
-      // 自動再生制限やロード失敗で再生できなかったときは状態を戻す。
       setPlaying(false);
     });
   };
@@ -115,150 +198,67 @@ export function RecordPlayer() {
 
   const seekMax = duration > 0 ? duration : 1;
 
+  /**
+   * プレイリスト行の再生時間ラベル。
+   *   durationLabel 優先 → 現在曲は実測 → 音源ありで不明は '-:--' → 音源なしは null(SOON)。
+   */
+  const timeLabel = (t: Track, i: number): string | null => {
+    if (!t.src) return null;
+    if (t.durationLabel) return t.durationLabel;
+    if (i === index && duration > 0) return formatTime(duration);
+    return '-:--';
+  };
+
   return (
     <>
-      {/* 盤の回転とラベル切替のキーフレーム(このコンポーネント専用) */}
-      <style>{`
-        @keyframes rp-spin { to { transform: rotate(360deg); } }
-        @keyframes rp-label-in {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
+      {/* 盤の回転キーフレーム(このコンポーネント専用) */}
+      <style>{`@keyframes rp-spin { to { transform: rotate(360deg); } }`}</style>
 
       <HudCard pad={false}>
-        <div className="grid md:grid-cols-[minmax(0,380px)_1fr]">
-          {/* ==== 左: ターンテーブル(すべて装飾) ==== */}
-          <div
-            aria-hidden="true"
-            className="relative flex select-none flex-col items-center justify-center gap-6 border-b border-white/10 bg-[#0a0f1a] p-8 sm:p-10 md:border-b-0 md:border-r"
-          >
-            {/* レコード盤(再生中のみ回転) */}
-            <div className="relative">
-              <div
-                className="relative flex h-64 w-64 items-center justify-center rounded-full border border-white/10 sm:h-72 sm:w-72"
-                style={{
-                  // 溝: 同心円の繰り返しで vinyl 質感を出す
-                  background:
-                    'repeating-radial-gradient(circle at 50% 50%, #16181f 0 1.5px, #0b0d13 1.5px 3px)',
-                  boxShadow: '0 14px 40px rgba(0, 0, 0, 0.55)',
-                  animation: 'rp-spin 4s linear infinite',
-                  animationPlayState: playing ? 'running' : 'paused',
-                }}
-              >
-                {/* 中央ラベル(曲切替で key が変わり、ふわっと出る) */}
-                <div
-                  key={track.id}
-                  className="flex h-[42%] w-[42%] flex-col items-center justify-center rounded-full border border-white/15"
-                  style={{
-                    background: `radial-gradient(circle at 35% 30%, ${track.art.c1}, ${track.art.c2})`,
-                    boxShadow: `0 0 24px ${track.art.glow}55`,
-                    animation: 'rp-label-in 0.5s ease',
-                  }}
-                >
-                  <span
-                    className="text-2xl font-bold text-white"
-                    style={{
-                      fontFamily: MONO,
-                      textShadow: '0 1px 4px rgba(0, 0, 0, 0.45)',
-                    }}
-                  >
-                    {track.art.initials}
-                  </span>
-                  {/* スピンドル(中心の白点) */}
-                  <span
-                    className="my-1 h-1.5 w-1.5 rounded-full bg-white/90"
-                    style={{ boxShadow: '0 0 4px rgba(255, 255, 255, 0.8)' }}
-                  />
-                  <span
-                    className="text-[9px] tracking-[0.2em] text-white/85"
-                    style={{ fontFamily: MONO }}
-                  >
-                    {track.sub}
-                  </span>
-                </div>
+        <div className="grid md:grid-cols-[300px_minmax(0,1fr)]">
+          {/* ==== 左: CD + シーク + 操作 ==== */}
+          <div className="flex flex-col items-center gap-3.5 border-b border-white/10 bg-[#0a0f1a] p-5 md:border-b-0 md:border-r">
+            <div aria-hidden="true" className="mt-1 select-none">
+              <Disc track={track} playing={playing} />
+            </div>
+
+            {/* 曲名 + タグ */}
+            <div className="w-full min-w-0 text-center">
+              <div className="mb-1.5 flex flex-wrap items-center justify-center gap-2">
+                <MonoTag>{track.sub}</MonoTag>
+                {track.date && <MonoTag>{track.date}</MonoTag>}
+                {playing && <OnAirTag />}
               </div>
-              {/* 盤面の静的ハイライト(光源は回らないので、回転する盤の上に重ねる) */}
-              <div
-                className="pointer-events-none absolute inset-0 rounded-full opacity-70"
-                style={{
-                  background:
-                    'conic-gradient(from 210deg at 50% 50%, rgba(255,255,255,0.10), transparent 16%, rgba(255,255,255,0.04) 40%, transparent 58%, rgba(255,255,255,0.08) 78%, transparent 94%)',
-                }}
-              />
+              <h2 className="truncate text-base font-bold text-white">
+                {track.title}
+              </h2>
             </div>
 
-            {/* トーンアーム(右上が支点。再生中は盤の上へ降りる) */}
-            <svg
-              viewBox="0 0 100 100"
-              className="absolute right-2 top-2 h-36 w-36 sm:h-40 sm:w-40"
-              style={{
-                transform: playing ? 'rotate(-12deg)' : 'rotate(-28deg)',
-                transformOrigin: '76% 22%',
-                transition: 'transform 0.6s ease',
-              }}
-            >
-              {/* 支点ベース */}
-              <circle
-                cx="76"
-                cy="22"
-                r="7"
-                fill="#161f30"
-                stroke="rgba(255, 255, 255, 0.22)"
-                strokeWidth="1.5"
+            {/* シークバー + 時刻 */}
+            <div className="flex w-full items-center gap-3">
+              <input
+                type="range"
+                min={0}
+                max={seekMax}
+                step={0.1}
+                value={Math.min(currentTime, seekMax)}
+                onChange={handleSeek}
+                disabled={!hasAudio}
+                aria-label="再生位置"
+                className="w-full min-w-0 flex-1 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+                style={{ accentColor: 'var(--page-accent, #05d9e8)' }}
               />
-              <circle cx="76" cy="22" r="2.5" fill="rgba(255, 255, 255, 0.55)" />
-              {/* アーム */}
-              <line
-                x1="76"
-                y1="22"
-                x2="42"
-                y2="76"
-                stroke="rgba(255, 255, 255, 0.4)"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-              {/* ヘッドシェル */}
-              <rect
-                x="36"
-                y="72"
-                width="11"
-                height="9"
-                rx="2"
-                fill="#1d2739"
-                stroke="rgba(255, 255, 255, 0.3)"
-                strokeWidth="1"
-                transform="rotate(-32 41.5 76.5)"
-              />
-            </svg>
-
-            {/* 計器行 */}
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <MonoTag>33 RPM</MonoTag>
-              <MonoTag>STEREO</MonoTag>
-              {playing && <OnAirTag />}
-            </div>
-          </div>
-
-          {/* ==== 右: 曲情報 + コントロール ==== */}
-          <div className="flex flex-col justify-center gap-5 p-6">
-            <div className="flex flex-wrap items-center gap-2">
-              <MonoTag>
-                {track.sub} / {String(TRACKS.length).padStart(2, '0')}
-              </MonoTag>
-              {track.date && <MonoTag>{track.date}</MonoTag>}
-              {playing && <OnAirTag />}
-              {!hasAudio && <MonoTag>AUDIO COMING SOON</MonoTag>}
+              <span
+                className="shrink-0 text-[11px] tabular-nums text-white/60"
+                style={{ fontFamily: MONO }}
+              >
+                {hasAudio
+                  ? `${formatTime(currentTime)} / ${formatTime(duration)}`
+                  : '-:-- / -:--'}
+              </span>
             </div>
 
-            <div>
-              <h2 className="text-xl font-bold text-white">{track.title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">
-                {track.desc}
-              </p>
-            </div>
-
-            {/* コントロール行 */}
+            {/* 操作ボタン(前 / 再生 / 次) */}
             <div className="flex items-center gap-2.5">
               <NeonButton
                 subtle
@@ -286,47 +286,16 @@ export function RecordPlayer() {
               </NeonButton>
             </div>
 
-            {/* シークバー + 時刻 */}
-            <div className="flex items-center gap-3">
-              <input
-                type="range"
-                min={0}
-                max={seekMax}
-                step={0.1}
-                value={Math.min(currentTime, seekMax)}
-                onChange={handleSeek}
-                disabled={!hasAudio}
-                aria-label="再生位置"
-                className="w-full min-w-0 flex-1 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
-                style={{ accentColor: 'var(--page-accent, #05d9e8)' }}
-              />
-              <span
-                className="shrink-0 text-[11px] tabular-nums text-white/60"
-                style={{ fontFamily: MONO }}
+            {/* 現在曲に YouTube URL があればリンク(今は未設定=非表示) */}
+            {track.youtubeUrl && (
+              <NeonLink
+                subtle
+                href={track.youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                {hasAudio
-                  ? `${formatTime(currentTime)} / ${formatTime(duration)}`
-                  : '-:-- / -:--'}
-              </span>
-            </div>
-
-            {/* 音源未提供の案内(YouTube URL があるときだけリンクを出す。href="#" は使わない) */}
-            {!hasAudio && (
-              <div className="flex flex-col gap-3">
-                <p className="text-xs leading-relaxed text-white/60">
-                  音源は準備中です。公開までもう少しお待ちください。
-                </p>
-                {track.youtubeUrl && (
-                  <NeonLink
-                    href={track.youtubeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="self-start"
-                  >
-                    YOUTUBE ↗
-                  </NeonLink>
-                )}
-              </div>
+                YOUTUBE ↗
+              </NeonLink>
             )}
 
             {/* オーディオ本体(1 個だけ。曲切替は src 差し替え) */}
@@ -340,18 +309,28 @@ export function RecordPlayer() {
             />
           </div>
 
-          {/* ==== 下: プレイリスト ==== */}
-          <div className="border-t border-white/10 md:col-span-2">
-            <ul>
+          {/* ==== 右: 曲リスト(スクロール)==== */}
+          <div className="flex min-w-0 flex-col p-4 sm:p-5">
+            <div className="mb-2.5 flex items-center gap-2 px-1">
+              <MonoTag>PLAYLIST</MonoTag>
+              <span
+                className="text-[11px] tracking-wider text-white/40"
+                style={{ fontFamily: MONO }}
+              >
+                {String(TRACKS.length).padStart(2, '0')} TRACKS
+              </span>
+            </div>
+            <ul className="max-h-[320px] divide-y divide-white/5 overflow-y-auto rounded-lg border border-white/10 md:max-h-[372px]">
               {TRACKS.map((t, i) => {
                 const active = i === index;
+                const tl = timeLabel(t, i);
                 return (
-                  <li key={t.id} className="border-b border-white/5 last:border-b-0">
+                  <li key={t.id}>
                     <button
                       type="button"
                       onClick={() => selectTrack(i)}
                       aria-current={active ? 'true' : undefined}
-                      className={`flex w-full items-center gap-3 border-l-2 px-5 py-3 text-left transition-colors sm:px-6 ${
+                      className={`flex w-full items-center gap-3 border-l-2 px-3 py-2.5 text-left transition-colors ${
                         active
                           ? 'bg-white/[0.05]'
                           : 'border-transparent hover:bg-white/[0.04]'
@@ -362,21 +341,30 @@ export function RecordPlayer() {
                           : undefined
                       }
                     >
-                      <span
-                        className="w-6 shrink-0 text-[11px] text-white/45"
-                        style={{ fontFamily: MONO }}
-                      >
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-                      {/* レーベル配色のスウォッチ */}
+                      {/* 最小化アイコン(盤面画像 or グラデ) */}
                       <span
                         aria-hidden="true"
-                        className="h-3.5 w-3.5 shrink-0 rounded-full border border-white/20"
+                        className="h-9 w-9 shrink-0 overflow-hidden rounded-full border border-white/15"
                         style={{
-                          background: `linear-gradient(135deg, ${t.art.c1}, ${t.art.c2})`,
                           boxShadow: active ? `0 0 8px ${t.art.glow}66` : 'none',
                         }}
-                      />
+                      >
+                        {t.art.image ? (
+                          <img
+                            src={t.art.image}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span
+                            className="block h-full w-full"
+                            style={{
+                              background: `linear-gradient(135deg, ${t.art.c1}, ${t.art.c2})`,
+                            }}
+                          />
+                        )}
+                      </span>
+                      {/* 曲名 */}
                       <span
                         className={`flex-1 truncate text-sm ${
                           active ? 'font-semibold text-white' : 'text-white/80'
@@ -384,12 +372,13 @@ export function RecordPlayer() {
                       >
                         {t.title}
                       </span>
-                      {t.src ? (
+                      {/* 再生時間 or SOON */}
+                      {tl ? (
                         <span
                           className="shrink-0 text-[11px] tabular-nums text-white/50"
                           style={{ fontFamily: MONO }}
                         >
-                          {active && duration > 0 ? formatTime(duration) : '-:--'}
+                          {tl}
                         </span>
                       ) : (
                         <MonoTag className="shrink-0">SOON</MonoTag>

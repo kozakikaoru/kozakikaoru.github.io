@@ -11,7 +11,7 @@ export default function Music() {
       title="ミュージック"
       sub="MUSIC"
       accent="#05d9e8"
-      lead="AIと一緒につくった楽曲を、レコードプレイヤーで試聴できるページです。曲を選ぶと、その曲の歌詞も一緒に読めます。"
+      lead="AIと一緒につくった楽曲を試聴できるページです。曲を選ぶと歌詞も一緒に読めます。"
     >
       <RecordPlayer />
 
