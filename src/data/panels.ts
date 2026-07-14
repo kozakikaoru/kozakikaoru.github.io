@@ -49,7 +49,7 @@ export const PANELS: PanelDef[] = [
     to: '/about',
     label: '自己紹介',
     displayLabel: '小崎 薫',
-    sub: 'ABOUT',
+    sub: 'PROFILE',
     description: 'わたしについて',
     position: [-6.5, 0.55, 0],
     // about=バイオレット/紫(ユーザー採用: works と入替後、紫が好評)。
@@ -61,7 +61,7 @@ export const PANELS: PanelDef[] = [
   {
     id: 'music',
     to: '/music',
-    label: 'ミュージック',
+    label: '制作楽曲',
     displayLabel: 'MUSIC',
     sub: 'MUSIC',
     description: 'AIでつくった楽曲',

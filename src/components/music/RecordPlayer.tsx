@@ -1,13 +1,13 @@
 // 音楽プレイヤー(PC は 2 カラム構成)。
 //   - 左: 枠なし・列いっぱいの正方形アート(静止)+ 曲名/制作日 + フルwシークバー
 //         (下に現在/総時間)+ 枠なしの操作ボタン(前/再生/次)
-//   - 右: 曲リスト(スクロール・ヘッダなし)。各行 = アイコン + 曲名 + 再生時間。
-//         アイコンは通常は正方形、選択中は丸、再生中はさらに回転する。音源なしは SOON。
-//   - 下: 選択中の曲の歌詞(空行でブロック分割・表示/隠すトグル)
-// 音源(Track.src)が無い曲は再生系 UI を無効化する。<audio> は 1 個・曲切替は src 差し替え。
+//   - 右: 曲リスト(枠いっぱい・スクロール)。各行 = アイコン + 曲名 + 再生時間。
+//         行をクリックするとその曲を再生。アイコンは通常は正方形、選択中は丸、再生中は回転。
+//   - 下: 選択中の曲の歌詞(常時表示)
+// <audio> は 1 個・曲切替は src 差し替え。
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
-import { HudCard, MONO, MonoTag, NeonLink, SectionHeading } from '../HudKit';
+import { HudCard, MONO, NeonLink, SectionHeading } from '../HudKit';
 import { TRACKS } from '../../data/tracks';
 import type { Track } from '../../data/tracks';
 
@@ -65,11 +65,11 @@ export function RecordPlayer() {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [showLyrics, setShowLyrics] = useState(true);
+  // 曲切替後に自動再生する要求フラグ(src 差し替えの後に再生するため一拍おく)。
+  const [pendingPlay, setPendingPlay] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const track = TRACKS[index];
-  const hasAudio = Boolean(track.src);
   const stanzas = track.lyrics ? splitStanzas(track.lyrics) : [];
 
   // アンマウント時に再生を止める(ページ遷移後に音だけ残るのを防ぐ)。
@@ -78,11 +78,23 @@ export function RecordPlayer() {
     return () => audio?.pause();
   }, []);
 
+  // 曲切替(index 変更)後、pendingPlay が立っていれば新しい src を再生する。
+  //   src は再生成後に <audio> へ反映されるので、描画後のこの effect で play() する。
+  useEffect(() => {
+    if (!pendingPlay) return;
+    setPendingPlay(false);
+    const audio = audioRef.current;
+    if (!audio) return;
+    setPlaying(true);
+    audio.play().catch(() => setPlaying(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, pendingPlay]);
+
   /**
-   * 曲を選択する(前後ボタンはループ: 先頭の前は最後尾)。
-   * 切替時は必ず停止・リセットし、自動では鳴らさない(再生はユーザー操作起点のみ)。
+   * 曲を切り替える(前後ボタン/リストクリック共通・ループ)。
+   * autoPlay=true なら切替後に自動再生する。
    */
-  const selectTrack = (next: number) => {
+  const changeTrack = (next: number, autoPlay: boolean) => {
     const normalized = ((next % TRACKS.length) + TRACKS.length) % TRACKS.length;
     if (normalized === index) return;
     audioRef.current?.pause();
@@ -90,33 +102,41 @@ export function RecordPlayer() {
     setCurrentTime(0);
     setDuration(0);
     setIndex(normalized);
+    if (autoPlay) setPendingPlay(true);
   };
 
-  /** 再生/一時停止。play() の失敗(自動再生制限等)は catch して再生状態を戻す。 */
+  /** 再生/一時停止。play() の失敗(自動再生制限等)は catch して状態を戻す。 */
   const togglePlay = () => {
     const audio = audioRef.current;
-    if (!audio || !hasAudio) return;
+    if (!audio) return;
     if (playing) {
       audio.pause();
       setPlaying(false);
       return;
     }
     setPlaying(true);
-    audio.play().catch(() => {
-      setPlaying(false);
-    });
+    audio.play().catch(() => setPlaying(false));
   };
 
-  /** 再生終了: 次の曲を選択状態にするだけで、自動では再生しない。 */
+  /** リスト行クリック: 同じ曲なら再生/一時停止、別の曲なら選択して即再生。 */
+  const onTrackClick = (i: number) => {
+    if (i === index) {
+      togglePlay();
+      return;
+    }
+    changeTrack(i, true);
+  };
+
+  /** 再生終了: 次の曲へ(自動では再生しない)。 */
   const handleEnded = () => {
     setPlaying(false);
-    selectTrack(index + 1);
+    changeTrack(index + 1, false);
   };
 
-  /** シークバー操作。音源のあるときだけ反映する。 */
+  /** シークバー操作。 */
   const handleSeek = (e: ChangeEvent<HTMLInputElement>) => {
     const audio = audioRef.current;
-    if (!audio || !hasAudio) return;
+    if (!audio) return;
     const t = Number(e.target.value);
     audio.currentTime = t;
     setCurrentTime(t);
@@ -124,12 +144,8 @@ export function RecordPlayer() {
 
   const seekMax = duration > 0 ? duration : 1;
 
-  /**
-   * プレイリスト行の再生時間ラベル。
-   *   durationLabel 優先 → 現在曲は実測 → 音源ありで不明は '-:--' → 音源なしは null(SOON)。
-   */
-  const timeLabel = (t: Track, i: number): string | null => {
-    if (!t.src) return null;
+  /** プレイリスト行の再生時間ラベル(durationLabel 優先・現在曲は実測・不明は '-:--')。 */
+  const timeLabel = (t: Track, i: number): string => {
     if (t.durationLabel) return t.durationLabel;
     if (i === index && duration > 0) return formatTime(duration);
     return '-:--';
@@ -196,17 +212,16 @@ export function RecordPlayer() {
                   step={0.1}
                   value={Math.min(currentTime, seekMax)}
                   onChange={handleSeek}
-                  disabled={!hasAudio}
                   aria-label="再生位置"
-                  className="block w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+                  className="block w-full cursor-pointer"
                   style={{ accentColor: 'var(--page-accent, #05d9e8)' }}
                 />
                 <div
                   className="mt-1 flex items-center justify-between text-[11px] tabular-nums text-white/55"
                   style={{ fontFamily: MONO }}
                 >
-                  <span>{hasAudio ? formatTime(currentTime) : '0:00'}</span>
-                  <span>{hasAudio ? formatTime(duration) : '0:00'}</span>
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
                 </div>
               </div>
 
@@ -214,7 +229,7 @@ export function RecordPlayer() {
               <div className="flex items-center gap-6">
                 <button
                   type="button"
-                  onClick={() => selectTrack(index - 1)}
+                  onClick={() => changeTrack(index - 1, playing)}
                   aria-label="前の曲"
                   className="p-1 text-white/70 transition-colors hover:text-white"
                 >
@@ -223,9 +238,8 @@ export function RecordPlayer() {
                 <button
                   type="button"
                   onClick={togglePlay}
-                  disabled={!hasAudio}
                   aria-label={playing ? '一時停止' : '再生'}
-                  className="flex h-12 w-12 items-center justify-center rounded-full text-[#06121f] transition-transform hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
+                  className="flex h-12 w-12 items-center justify-center rounded-full text-[#06121f] transition-transform hover:scale-105"
                   style={{
                     background: 'var(--page-accent, #05d9e8)',
                     boxShadow:
@@ -236,7 +250,7 @@ export function RecordPlayer() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => selectTrack(index + 1)}
+                  onClick={() => changeTrack(index + 1, playing)}
                   aria-label="次の曲"
                   className="p-1 text-white/70 transition-colors hover:text-white"
                 >
@@ -268,20 +282,19 @@ export function RecordPlayer() {
             />
           </div>
 
-          {/* ==== 右: 曲リスト(ヘッダなし・スクロール)==== */}
-          <div className="min-w-0 p-3 sm:p-4">
-            <ul className="max-h-[320px] divide-y divide-white/5 overflow-y-auto md:max-h-[440px]">
+          {/* ==== 右: 曲リスト(枠いっぱい・スクロール)==== */}
+          <div className="min-w-0">
+            <ul className="max-h-[320px] divide-y divide-white/5 overflow-y-auto md:max-h-[460px]">
               {TRACKS.map((t, i) => {
                 const active = i === index;
                 const spinning = active && playing;
-                const tl = timeLabel(t, i);
                 return (
                   <li key={t.id}>
                     <button
                       type="button"
-                      onClick={() => selectTrack(i)}
+                      onClick={() => onTrackClick(i)}
                       aria-current={active ? 'true' : undefined}
-                      className={`flex w-full items-center gap-3 border-l-2 px-3 py-3 text-left transition-colors ${
+                      className={`flex w-full items-center gap-3 border-l-2 px-4 py-3.5 text-left transition-colors ${
                         active
                           ? 'bg-white/[0.05]'
                           : 'border-transparent hover:bg-white/[0.04]'
@@ -326,17 +339,13 @@ export function RecordPlayer() {
                       >
                         {t.title}
                       </span>
-                      {/* 再生時間 or SOON */}
-                      {tl ? (
-                        <span
-                          className="shrink-0 text-[11px] tabular-nums text-white/50"
-                          style={{ fontFamily: MONO }}
-                        >
-                          {tl}
-                        </span>
-                      ) : (
-                        <MonoTag className="shrink-0">SOON</MonoTag>
-                      )}
+                      {/* 再生時間 */}
+                      <span
+                        className="shrink-0 text-[11px] tabular-nums text-white/50"
+                        style={{ fontFamily: MONO }}
+                      >
+                        {timeLabel(t, i)}
+                      </span>
                     </button>
                   </li>
                 );
@@ -346,38 +355,20 @@ export function RecordPlayer() {
         </div>
       </HudCard>
 
-      {/* ==== 歌詞(選択中の曲)==== */}
+      {/* ==== 歌詞(選択中の曲・常時表示)==== */}
       <section className="mt-8">
         <SectionHeading>歌詞</SectionHeading>
         <HudCard>
           {track.lyrics ? (
-            <div>
-              <div className="mb-4 flex flex-wrap items-center gap-2">
-                <span className="text-sm font-semibold text-white">
-                  {track.title}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setShowLyrics((v) => !v)}
-                  aria-expanded={showLyrics}
-                  className="ml-auto shrink-0 tracking-wider text-white/55 transition-colors hover:text-white"
-                  style={{ fontFamily: MONO, fontSize: 11 }}
+            <div className="space-y-4">
+              {stanzas.map((stanza, i) => (
+                <p
+                  key={i}
+                  className="whitespace-pre-line text-sm leading-loose text-white/85"
                 >
-                  {showLyrics ? '［ − 隠す ］' : '［ ＋ 表示 ］'}
-                </button>
-              </div>
-              {showLyrics && (
-                <div className="space-y-4">
-                  {stanzas.map((stanza, i) => (
-                    <p
-                      key={i}
-                      className="whitespace-pre-line text-sm leading-loose text-white/85"
-                    >
-                      {stanza}
-                    </p>
-                  ))}
-                </div>
-              )}
+                  {stanza}
+                </p>
+              ))}
             </div>
           ) : (
             <p className="text-sm text-white/60">この曲の歌詞は準備中です。</p>

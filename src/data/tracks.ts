@@ -90,25 +90,4 @@ export const TRACKS: Track[] = [
       image: kakuteiCover,
     },
   },
-  {
-    id: 'neon-bloom',
-    title: 'Neon Bloom',
-    sub: 'TRK 02',
-    desc: 'AIと一緒に制作したエレクトロニックな一曲です。夜の街にネオンの花が咲いていくイメージを音にしました。',
-    art: { c1: '#05d9e8', c2: '#b14dff', glow: '#7ff3ff', initials: 'NB' },
-  },
-  {
-    id: 'margaret-field',
-    title: 'Margaret Field',
-    sub: 'TRK 03',
-    desc: 'AIと制作した、やわらかい音色のトラックです。マーガレットの咲く野原をゆっくり歩くような気分で聴いてください。',
-    art: { c1: '#ff9e2c', c2: '#ff5566', glow: '#ffd28a', initials: 'MF' },
-  },
-  {
-    id: 'midnight-grid',
-    title: 'Midnight Grid',
-    sub: 'TRK 04',
-    desc: 'AIと制作したダウンテンポなトラックです。深夜の碁盤の目の街を見下ろすような、静かな浮遊感がテーマです。',
-    art: { c1: '#1f8fff', c2: '#0b1a2a', glow: '#7ff3ff', initials: 'MG' },
-  },
 ];

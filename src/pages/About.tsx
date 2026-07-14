@@ -12,7 +12,7 @@ export default function About() {
   return (
     <PageShell
       title="自己紹介"
-      sub="ABOUT"
+      sub="PROFILE"
       lead={PROFILE.tagline}
       accent={ACCENT}
     >
