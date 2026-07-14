@@ -26,9 +26,7 @@ export default function Career() {
   return (
     <PageShell
       title="経歴"
-      sub="CAREER"
-      lead="これまで対応してきた案件のロードマップです。新しいものから順に、役割・取り組み・成果をまとめています。"
-      accent={ACCENT}
+      sub="CAREER"      accent={ACCENT}
     >
       {/* 凡例 */}
       <HudCard pad={false} className="mb-8">

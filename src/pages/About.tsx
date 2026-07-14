@@ -12,9 +12,7 @@ export default function About() {
   return (
     <PageShell
       title="自己紹介"
-      sub="PROFILE"
-      lead={PROFILE.tagline}
-      accent={ACCENT}
+      sub="PROFILE"      accent={ACCENT}
     >
       <div className="grid gap-8 md:grid-cols-[280px_1fr]">
         {/* 顔写真 or プレースホルダ(HudCard の額装風・内側に細い余白) */}

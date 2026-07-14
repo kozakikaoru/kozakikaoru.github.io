@@ -21,9 +21,7 @@ export default function NotFound() {
   return (
     <PageShell
       title="ページが見つかりません"
-      sub="404"
-      lead="SIGNAL LOST — お探しのページは電波の届かない場所にあるようです。"
-      accent={ACCENT}
+      sub="404"      accent={ACCENT}
     >
       <HudCard className="text-center text-white sm:p-8">
         <MonoTag>ERR 404 // NO SIGNAL</MonoTag>
