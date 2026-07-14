@@ -62,7 +62,7 @@ export const PANELS: PanelDef[] = [
     id: 'music',
     to: '/music',
     label: '制作楽曲',
-    displayLabel: 'MUSIC',
+    displayLabel: '制作楽曲',
     sub: 'MUSIC',
     description: 'AIでつくった楽曲',
     position: [-3.25, -0.55, 0],
