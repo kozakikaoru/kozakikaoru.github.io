@@ -6,7 +6,14 @@
 // <audio> は 1 個だけ持ち、曲切替は src の差し替えで行う(src 変更でブラウザ側も自動リセット)。
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
-import { HudCard, MONO, MonoTag, NeonButton, NeonLink } from '../HudKit';
+import {
+  HudCard,
+  MONO,
+  MonoTag,
+  NeonButton,
+  NeonLink,
+  SectionHeading,
+} from '../HudKit';
 import { TRACKS } from '../../data/tracks';
 
 /** 秒を M:SS 表記にする(NaN / Infinity / 負値は 0:00 扱い)。 */
@@ -15,6 +22,15 @@ function formatTime(sec: number): string {
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
   return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+/** 歌詞テキストを「空行区切りのブロック」配列に分割する(各ブロックは改行付きの1文字列)。 */
+function splitStanzas(lyrics: string): string[] {
+  return lyrics
+    .trim()
+    .split(/\n\s*\n/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 /** 再生中インジケータ(アクセント色のドット + ON AIR)。 */
@@ -39,10 +55,12 @@ export function RecordPlayer() {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [showLyrics, setShowLyrics] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const track = TRACKS[index];
   const hasAudio = Boolean(track.src);
+  const stanzas = track.lyrics ? splitStanzas(track.lyrics) : [];
 
   // アンマウント時に再生を止める(ページ遷移後に音だけ残るのを防ぐ)。
   useEffect(() => {
@@ -228,6 +246,7 @@ export function RecordPlayer() {
               <MonoTag>
                 {track.sub} / {String(TRACKS.length).padStart(2, '0')}
               </MonoTag>
+              {track.date && <MonoTag>{track.date}</MonoTag>}
               {playing && <OnAirTag />}
               {!hasAudio && <MonoTag>AUDIO COMING SOON</MonoTag>}
             </div>
@@ -383,6 +402,46 @@ export function RecordPlayer() {
           </div>
         </div>
       </HudCard>
+
+      {/* ==== 歌詞(選択中の曲)==== */}
+      <section className="mt-8">
+        <SectionHeading>歌詞</SectionHeading>
+        <HudCard>
+          {track.lyrics ? (
+            <div>
+              <div className="mb-4 flex flex-wrap items-center gap-2">
+                <MonoTag>{track.sub}</MonoTag>
+                <span className="text-sm font-semibold text-white">
+                  {track.title}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowLyrics((v) => !v)}
+                  aria-expanded={showLyrics}
+                  className="ml-auto shrink-0 tracking-wider text-white/55 transition-colors hover:text-white"
+                  style={{ fontFamily: MONO, fontSize: 11 }}
+                >
+                  {showLyrics ? '［ − 隠す ］' : '［ ＋ 表示 ］'}
+                </button>
+              </div>
+              {showLyrics && (
+                <div className="space-y-4">
+                  {stanzas.map((stanza, i) => (
+                    <p
+                      key={i}
+                      className="whitespace-pre-line text-sm leading-loose text-white/85"
+                    >
+                      {stanza}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-white/60">この曲の歌詞は準備中です。</p>
+          )}
+        </HudCard>
+      </section>
     </>
   );
 }

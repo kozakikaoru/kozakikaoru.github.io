@@ -11,7 +11,7 @@ export default function Music() {
       title="ミュージック"
       sub="MUSIC"
       accent="#05d9e8"
-      lead="AIと一緒につくった楽曲を、レコードプレイヤーで試聴できるページです。音源は準備中で、公開でき次第ここに並びます。"
+      lead="AIと一緒につくった楽曲を、レコードプレイヤーで試聴できるページです。曲を選ぶと、その曲の歌詞も一緒に読めます。"
     >
       <RecordPlayer />
 
@@ -20,7 +20,7 @@ export default function Music() {
         <SectionHeading>配信について</SectionHeading>
         <HudCard>
           <p className="text-sm leading-relaxed text-white/80">
-            数曲はこのサイトで直接試聴できるようにし、フルバージョンは YouTube /
+            楽曲はこのサイトで直接試聴できます。新曲やフルバージョンは YouTube /
             SoundCloud での公開も検討中です。準備が整い次第、それぞれのリンクをここに掲載します。
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
