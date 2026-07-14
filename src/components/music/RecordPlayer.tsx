@@ -1,8 +1,8 @@
-// 音楽プレイヤー(PC は 1 画面に収まる 2 カラム構成)。
-//   - 左: 正方形の大きなアート(静止)+ 曲名/制作日 + フルwシークバー(下に現在/総時間)
-//         + 枠なしの操作ボタン(前/再生/次)
-//   - 右: 曲リスト(スクロール・ヘッダなし)。各行 = 正方形アイコン + 曲名 + 再生時間。
-//         再生中の曲だけアイコンが丸くなって回転する。音源なしは SOON。
+// 音楽プレイヤー(PC は 2 カラム構成)。
+//   - 左: 枠なし・列いっぱいの正方形アート(静止)+ 曲名/制作日 + フルwシークバー
+//         (下に現在/総時間)+ 枠なしの操作ボタン(前/再生/次)
+//   - 右: 曲リスト(スクロール・ヘッダなし)。各行 = アイコン + 曲名 + 再生時間。
+//         アイコンは通常は正方形、選択中は丸、再生中はさらに回転する。音源なしは SOON。
 //   - 下: 選択中の曲の歌詞(空行でブロック分割・表示/隠すトグル)
 // 音源(Track.src)が無い曲は再生系 UI を無効化する。<audio> は 1 個・曲切替は src 差し替え。
 import { useEffect, useRef, useState } from 'react';
@@ -141,125 +141,121 @@ export function RecordPlayer() {
       <style>{`@keyframes rp-spin { to { transform: rotate(360deg); } }`}</style>
 
       <HudCard pad={false}>
-        <div className="grid md:grid-cols-[300px_minmax(0,1fr)]">
+        <div className="grid md:grid-cols-[316px_minmax(0,1fr)]">
           {/* ==== 左: アート + 曲名 + シーク + 操作 ==== */}
-          <div className="flex flex-col items-center gap-3.5 border-b border-white/10 bg-[#0a0f1a] p-4 md:border-b-0 md:border-r">
-            {/* 正方形の大きなアート(静止) */}
-            <div className="w-full max-w-[300px] md:max-w-[224px]">
-              <div
-                className="relative aspect-square w-full overflow-hidden rounded-lg border border-white/15"
-                style={{
-                  boxShadow: `0 12px 32px rgba(0,0,0,0.5), 0 0 22px ${track.art.glow}22`,
-                }}
-              >
-                {track.art.image ? (
-                  <img
-                    src={track.art.image}
-                    alt={track.title}
-                    draggable={false}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div
-                    className="flex h-full w-full items-center justify-center"
-                    style={{
-                      background: `radial-gradient(circle at 35% 30%, ${track.art.c1}, ${track.art.c2})`,
-                    }}
-                  >
-                    <span
-                      className="text-4xl font-bold text-white/90"
-                      style={{ fontFamily: MONO, textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
-                    >
-                      {track.art.initials}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* 曲名 + 制作日 */}
-            <div className="w-full min-w-0 text-center">
-              <h2 className="truncate text-base font-bold text-white">
-                {track.title}
-              </h2>
-              {track.date && (
-                <p
-                  className="mt-0.5 text-[11px] tracking-wider text-white/45"
-                  style={{ fontFamily: MONO }}
+          <div className="flex flex-col border-b border-white/10 bg-[#0a0f1a] md:border-b-0 md:border-r">
+            {/* 正方形の大きなアート(静止・枠なし・列いっぱい)。カードの overflow-hidden が角丸を担う。 */}
+            <div className="relative aspect-square w-full overflow-hidden">
+              {track.art.image ? (
+                <img
+                  src={track.art.image}
+                  alt={track.title}
+                  draggable={false}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div
+                  className="flex h-full w-full items-center justify-center"
+                  style={{
+                    background: `radial-gradient(circle at 35% 30%, ${track.art.c1}, ${track.art.c2})`,
+                  }}
                 >
-                  {track.date}
-                </p>
+                  <span
+                    className="text-5xl font-bold text-white/90"
+                    style={{ fontFamily: MONO, textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
+                  >
+                    {track.art.initials}
+                  </span>
+                </div>
               )}
             </div>
 
-            {/* フル幅シークバー + 現在/総時間(YouTube Music 風に左右へ) */}
-            <div className="w-full">
-              <input
-                type="range"
-                min={0}
-                max={seekMax}
-                step={0.1}
-                value={Math.min(currentTime, seekMax)}
-                onChange={handleSeek}
-                disabled={!hasAudio}
-                aria-label="再生位置"
-                className="block w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
-                style={{ accentColor: 'var(--page-accent, #05d9e8)' }}
-              />
-              <div
-                className="mt-1 flex items-center justify-between text-[11px] tabular-nums text-white/55"
-                style={{ fontFamily: MONO }}
-              >
-                <span>{hasAudio ? formatTime(currentTime) : '0:00'}</span>
-                <span>{hasAudio ? formatTime(duration) : '0:00'}</span>
+            {/* 操作エリア(余白あり) */}
+            <div className="flex flex-col items-center gap-2.5 p-3.5">
+              {/* 曲名 + 制作日 */}
+              <div className="w-full min-w-0 text-center">
+                <h2 className="truncate text-base font-bold text-white">
+                  {track.title}
+                </h2>
+                {track.date && (
+                  <p
+                    className="mt-0.5 text-[11px] tracking-wider text-white/45"
+                    style={{ fontFamily: MONO }}
+                  >
+                    {track.date}
+                  </p>
+                )}
               </div>
-            </div>
 
-            {/* 操作ボタン(枠なし・前/次は大きめアイコン・再生は塗り丸) */}
-            <div className="flex items-center gap-6">
-              <button
-                type="button"
-                onClick={() => selectTrack(index - 1)}
-                aria-label="前の曲"
-                className="p-1 text-white/70 transition-colors hover:text-white"
-              >
-                <IconPrev />
-              </button>
-              <button
-                type="button"
-                onClick={togglePlay}
-                disabled={!hasAudio}
-                aria-label={playing ? '一時停止' : '再生'}
-                className="flex h-12 w-12 items-center justify-center rounded-full text-[#06121f] transition-transform hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
-                style={{
-                  background: 'var(--page-accent, #05d9e8)',
-                  boxShadow:
-                    '0 0 16px color-mix(in srgb, var(--page-accent, #05d9e8) 45%, transparent)',
-                }}
-              >
-                {playing ? <IconPause /> : <IconPlay />}
-              </button>
-              <button
-                type="button"
-                onClick={() => selectTrack(index + 1)}
-                aria-label="次の曲"
-                className="p-1 text-white/70 transition-colors hover:text-white"
-              >
-                <IconNext />
-              </button>
-            </div>
+              {/* フル幅シークバー + 現在/総時間(YouTube Music 風に左右へ) */}
+              <div className="w-full">
+                <input
+                  type="range"
+                  min={0}
+                  max={seekMax}
+                  step={0.1}
+                  value={Math.min(currentTime, seekMax)}
+                  onChange={handleSeek}
+                  disabled={!hasAudio}
+                  aria-label="再生位置"
+                  className="block w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+                  style={{ accentColor: 'var(--page-accent, #05d9e8)' }}
+                />
+                <div
+                  className="mt-1 flex items-center justify-between text-[11px] tabular-nums text-white/55"
+                  style={{ fontFamily: MONO }}
+                >
+                  <span>{hasAudio ? formatTime(currentTime) : '0:00'}</span>
+                  <span>{hasAudio ? formatTime(duration) : '0:00'}</span>
+                </div>
+              </div>
 
-            {/* 現在曲に YouTube URL があればリンク(今は未設定=非表示) */}
-            {track.youtubeUrl && (
-              <NeonLink
-                subtle
-                href={track.youtubeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                YOUTUBE ↗
-              </NeonLink>
-            )}
+              {/* 操作ボタン(枠なし・前/次は大きめアイコン・再生は塗り丸) */}
+              <div className="flex items-center gap-6">
+                <button
+                  type="button"
+                  onClick={() => selectTrack(index - 1)}
+                  aria-label="前の曲"
+                  className="p-1 text-white/70 transition-colors hover:text-white"
+                >
+                  <IconPrev />
+                </button>
+                <button
+                  type="button"
+                  onClick={togglePlay}
+                  disabled={!hasAudio}
+                  aria-label={playing ? '一時停止' : '再生'}
+                  className="flex h-12 w-12 items-center justify-center rounded-full text-[#06121f] transition-transform hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
+                  style={{
+                    background: 'var(--page-accent, #05d9e8)',
+                    boxShadow:
+                      '0 0 16px color-mix(in srgb, var(--page-accent, #05d9e8) 45%, transparent)',
+                  }}
+                >
+                  {playing ? <IconPause /> : <IconPlay />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => selectTrack(index + 1)}
+                  aria-label="次の曲"
+                  className="p-1 text-white/70 transition-colors hover:text-white"
+                >
+                  <IconNext />
+                </button>
+              </div>
+
+              {/* 現在曲に YouTube URL があればリンク(今は未設定=非表示) */}
+              {track.youtubeUrl && (
+                <NeonLink
+                  subtle
+                  href={track.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  YOUTUBE ↗
+                </NeonLink>
+              )}
+            </div>
 
             {/* オーディオ本体(1 個だけ。曲切替は src 差し替え) */}
             <audio
@@ -274,7 +270,7 @@ export function RecordPlayer() {
 
           {/* ==== 右: 曲リスト(ヘッダなし・スクロール)==== */}
           <div className="min-w-0 p-3 sm:p-4">
-            <ul className="max-h-[300px] divide-y divide-white/5 overflow-y-auto md:max-h-[400px]">
+            <ul className="max-h-[320px] divide-y divide-white/5 overflow-y-auto md:max-h-[440px]">
               {TRACKS.map((t, i) => {
                 const active = i === index;
                 const spinning = active && playing;
@@ -285,7 +281,7 @@ export function RecordPlayer() {
                       type="button"
                       onClick={() => selectTrack(i)}
                       aria-current={active ? 'true' : undefined}
-                      className={`flex w-full items-center gap-3 border-l-2 px-3 py-2.5 text-left transition-colors ${
+                      className={`flex w-full items-center gap-3 border-l-2 px-3 py-3 text-left transition-colors ${
                         active
                           ? 'bg-white/[0.05]'
                           : 'border-transparent hover:bg-white/[0.04]'
@@ -296,11 +292,11 @@ export function RecordPlayer() {
                           : undefined
                       }
                     >
-                      {/* アイコン: 通常は正方形 / 再生中の曲だけ丸くなって回転 */}
+                      {/* アイコン: 通常は正方形 / 選択中は丸 / 再生中はさらに回転 */}
                       <span
                         aria-hidden="true"
                         className={`h-10 w-10 shrink-0 overflow-hidden border border-white/15 ${
-                          spinning ? 'rounded-full' : 'rounded-md'
+                          active ? 'rounded-full' : 'rounded-md'
                         }`}
                         style={{
                           boxShadow: active ? `0 0 8px ${t.art.glow}66` : 'none',
