@@ -117,7 +117,10 @@ interface GlassPanelProps {
    * 親(HeroScene)が layoutForAspect() で計算して渡す。
    */
   position: [number, number, number];
-  /** column レイアウトで大パネルを圧縮する実効スケール(通常 1)。 */
+  /**
+   * column(スマホ)レイアウトでこのパネルを縮小する実効スケール(通常 1)。
+   * パネル全体を uniform に scale するので、内部 HUD 装飾の比率は PC と一致する。
+   */
   sizeScale: number;
 }
 
@@ -172,11 +175,17 @@ export function GlassPanel({
   const animate = richDecor && !reducedMotion;
   const theme = useMemo(() => themeFor(panel.id), [panel.id]);
 
-  // このパネルの実寸(基準サイズ × sizeScale)。ジオメトリ生成に使う。
-  const { w: PANEL_W, h: PANEL_H } = useMemo(() => {
-    const base = panelBaseSize(panel.size);
-    return { w: base.w * sizeScale, h: base.h * sizeScale };
-  }, [panel.size, sizeScale]);
+  // このパネルの実寸(基準サイズ)。ジオメトリ・テクスチャ・内部 HUD 装飾はすべてこの基準
+  //   寸法で組む。column(スマホ)の縮小 sizeScale は下の <group scale> で全体に等倍で掛ける。
+  //   → 内部装飾には絶対値で調整した定数(ringR・ラベル plane 高・キャプション fontSize・
+  //     ステータスマーク等)が多く、PANEL_W/H に sizeScale を焼き込むと本体だけ縮んで固定装飾は
+  //     縮まず、パネル内の比率が PC(sizeScale=1)と変わってしまう(ユーザーFB:スマホは文字/
+  //     アイコン/目盛りの比率がPCと違う)。group 全体を等倍縮小すれば、どのアスペクト比でも
+  //     PC と同一比率になる(縮小後の見かけサイズはカメラフィットが吸収)。
+  const { w: PANEL_W, h: PANEL_H } = useMemo(
+    () => panelBaseSize(panel.size),
+    [panel.size],
+  );
 
   // ABOUT(プロフィール)パネルだけの特別扱い(ユーザーFB):
   //   ・左端に顔写真をパネル高さいっぱいで飾る(左上=角丸/左下=斜めカットで本体形状に沿わせる)
@@ -609,6 +618,9 @@ export function GlassPanel({
     <group
       ref={group}
       position={position}
+      // column(スマホ)の縮小は panel 全体を等倍 scale する(内部 HUD の比率を PC と揃えるため)。
+      //   useFrame は position/rotation のみ操作し scale は触らないので、この prop 値が保持される。
+      scale={sizeScale}
       onPointerOver={(e) => {
         e.stopPropagation();
         setHovered(true);
