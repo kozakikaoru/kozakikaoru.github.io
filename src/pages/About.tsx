@@ -1,4 +1,4 @@
-// 自己紹介ページ。顔写真 + プロフィール本文 + スキル。
+// プロフィールページ。顔写真 + プロフィール本文 + スキル。
 // レイアウト(写真+facts | 本文+スキル)は従来どおり、カード類を HudKit
 // (ダークガラス+アクセントヘアライン)へ置き換え、旧ライトガラスを全廃。
 import { PageShell } from '../components/PageShell';
@@ -10,7 +10,7 @@ const ACCENT = '#b14dff';
 
 export default function About() {
   return (
-    <PageShell title="自己紹介" sub="PROFILE" accent={ACCENT}>
+    <PageShell title="プロフィール" sub="PROFILE" accent={ACCENT}>
       <div className="grid gap-8 md:grid-cols-[280px_1fr]">
         {/* 顔写真 or プレースホルダ(HudCard の額装風・内側に細い余白) */}
         <div>

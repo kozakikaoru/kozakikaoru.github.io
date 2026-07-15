@@ -14,7 +14,7 @@
 //   - やむを得ず背景直置きにする文字は text-hud-shadow(濃い黒影)を添える
 //
 // フォントの前提:
-//   - Dela Gothic One は h1 の既存文言だけの 39 字サブセット。ここでは使わない(豆腐になる)
+//   - Dela Gothic One は h1 の既存文言だけの 41 字サブセット。ここでは使わない(豆腐になる)
 //   - 本文用 Web フォントは未ロード(実体は Hiragino / Yu Gothic 等)。Yu Gothic は
 //     400/700 しか無いため font-medium / font-semibold で階層は作れない。
 //     階層はサイズ・白の不透明度・余白・字間で作る
