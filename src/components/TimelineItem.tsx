@@ -66,7 +66,9 @@ export function TimelineItem({ project, isLast }: TimelineItemProps) {
         <h2 className="mt-2 text-lg font-bold">{project.title}</h2>
         <p className="text-xs text-white/60">{project.role}</p>
 
-        <p className="mt-3 text-sm text-white/85">{project.summary}</p>
+        {project.summary && (
+          <p className="mt-3 text-sm text-white/85">{project.summary}</p>
+        )}
 
         {/* やったこと */}
         <ul className="mt-3 space-y-1 text-sm text-white/90">
@@ -80,16 +82,18 @@ export function TimelineItem({ project, isLast }: TimelineItemProps) {
           ))}
         </ul>
 
-        {/* 成果 */}
-        <p className="mt-3 rounded-2xl bg-white/5 px-3 py-2 text-sm">
-          <span
-            className="mr-1 font-semibold"
-            style={{ color: 'var(--page-accent, #7ff3ff)' }}
-          >
-            成果:
-          </span>
-          {project.outcome}
-        </p>
+        {/* 成果(設定時のみ表示) */}
+        {project.outcome && (
+          <p className="mt-3 rounded-2xl bg-white/5 px-3 py-2 text-sm">
+            <span
+              className="mr-1 font-semibold"
+              style={{ color: 'var(--page-accent, #7ff3ff)' }}
+            >
+              成果:
+            </span>
+            {project.outcome}
+          </p>
+        )}
 
         {/* 技術タグ */}
         <ul className="mt-3 flex flex-wrap gap-1.5">
