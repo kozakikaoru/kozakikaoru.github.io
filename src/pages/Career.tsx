@@ -1,10 +1,9 @@
 // 経歴(Career)ページ。客先に見せる想定で、案件をロードマップ/タイムライン形式に。
-// 新しい順に並べ、ドメイン(案件ジャンル)で色分けする。
+// 新しい順に並べる。
 import { useMemo } from 'react';
 import { PageShell } from '../components/PageShell';
-import { HudCard } from '../components/HudKit';
 import { TimelineItem } from '../components/TimelineItem';
-import { CAREER_PROJECTS, DOMAIN_COLORS } from '../data/career';
+import { CAREER_PROJECTS } from '../data/career';
 
 // ページアクセント(panels.ts の career と同色)。
 const ACCENT = '#ff9e2c';
@@ -17,36 +16,8 @@ export default function Career() {
     [],
   );
 
-  // 凡例に出すドメイン一覧(実データに登場するものだけ)。
-  const domains = useMemo(
-    () => Array.from(new Set(sorted.map((p) => p.domain))),
-    [sorted],
-  );
-
   return (
-    <PageShell
-      title="経歴"
-      sub="CAREER"      accent={ACCENT}
-    >
-      {/* 凡例 */}
-      <HudCard pad={false} className="mb-8">
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3 text-xs text-white/85">
-          <span className="font-semibold text-white/60">案件ジャンル:</span>
-          {domains.map((d) => (
-            <span key={d} className="flex items-center gap-1.5">
-              <span
-                className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{
-                  background: DOMAIN_COLORS[d] ?? DOMAIN_COLORS['デフォルト'],
-                }}
-                aria-hidden="true"
-              />
-              {d}
-            </span>
-          ))}
-        </div>
-      </HudCard>
-
+    <PageShell title="経歴" sub="CAREER" accent={ACCENT}>
       {/* タイムライン */}
       <ol className="relative">
         {sorted.map((p, i) => (

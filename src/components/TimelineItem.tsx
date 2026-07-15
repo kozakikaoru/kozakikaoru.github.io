@@ -1,13 +1,15 @@
 // 経歴タイムラインの1項目。縦ラインの左にノード、右に案件カード。
-import { DOMAIN_COLORS, type CareerProject } from '../data/career';
+import { type CareerProject } from '../data/career';
 
 interface TimelineItemProps {
   project: CareerProject;
   isLast: boolean;
 }
 
+// ノード・箇条書き・見出しの色はページアクセントに統一。
+const ACCENT = 'var(--page-accent, #7ff3ff)';
+
 export function TimelineItem({ project, isLast }: TimelineItemProps) {
-  const color = DOMAIN_COLORS[project.domain] ?? DOMAIN_COLORS['デフォルト'];
   const ongoing = project.status === 'ongoing';
 
   return (
@@ -28,15 +30,15 @@ export function TimelineItem({ project, isLast }: TimelineItemProps) {
       <span
         className="absolute left-2 top-4 flex h-6 w-6 items-center justify-center rounded-full sm:left-[10px]"
         style={{
-          background: color,
-          boxShadow: `0 0 16px ${color}`,
+          background: ACCENT,
+          boxShadow: `0 0 16px ${ACCENT}`,
         }}
         aria-hidden="true"
       >
         {ongoing && (
           <span
             className="h-6 w-6 animate-ping rounded-full"
-            style={{ background: color, opacity: 0.5 }}
+            style={{ background: ACCENT, opacity: 0.5 }}
           />
         )}
       </span>
@@ -44,27 +46,22 @@ export function TimelineItem({ project, isLast }: TimelineItemProps) {
       {/* カード */}
       <article className="glass-dark mb-6 rounded-3xl p-5 text-white sm:p-6">
         <div className="flex flex-wrap items-center gap-2">
-          <time
-            className="font-mono text-xs"
-            style={{ color: 'var(--page-accent, #7ff3ff)' }}
-          >
+          <time className="font-mono text-xs" style={{ color: ACCENT }}>
             {project.period}
           </time>
-          <span
-            className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
-            style={{ background: `${color}33`, color: '#fff' }}
-          >
-            {project.domain}
-          </span>
           {ongoing && (
             <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-200">
               進行中
             </span>
           )}
+          {project.startup && (
+            <span className="rounded-full bg-violet-400/20 px-2 py-0.5 text-[10px] font-semibold text-violet-200">
+              スタートアップ
+            </span>
+          )}
         </div>
 
         <h2 className="mt-2 text-lg font-bold">{project.title}</h2>
-        <p className="text-xs text-white/60">{project.role}</p>
 
         {project.summary && (
           <p className="mt-3 text-sm text-white/85">{project.summary}</p>
@@ -74,7 +71,7 @@ export function TimelineItem({ project, isLast }: TimelineItemProps) {
         <ul className="mt-3 space-y-1 text-sm text-white/90">
           {project.highlights.map((h) => (
             <li key={h} className="flex gap-2">
-              <span aria-hidden="true" style={{ color }}>
+              <span aria-hidden="true" style={{ color: ACCENT }}>
                 ▹
               </span>
               {h}
@@ -85,10 +82,7 @@ export function TimelineItem({ project, isLast }: TimelineItemProps) {
         {/* 成果(設定時のみ表示) */}
         {project.outcome && (
           <p className="mt-3 rounded-2xl bg-white/5 px-3 py-2 text-sm">
-            <span
-              className="mr-1 font-semibold"
-              style={{ color: 'var(--page-accent, #7ff3ff)' }}
-            >
+            <span className="mr-1 font-semibold" style={{ color: ACCENT }}>
               成果:
             </span>
             {project.outcome}
