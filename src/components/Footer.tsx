@@ -14,7 +14,11 @@ export function Footer() {
         <span style={{ fontFamily: 'var(--font-display)' }}>
           {PROFILE.name}
         </span>
-        <span className="mx-2 text-white/40">/</span>
+        {/* 名前と肩書きの区切り。肩書き自体が「/」を含むので、読み上げからは
+            外して視覚的にも一段落とす(装飾なので本文の /75 規約の対象外)。 */}
+        <span aria-hidden="true" className="mx-2 text-white/60">
+          /
+        </span>
         {PROFILE.role}
       </p>
       <div className="mt-4 flex flex-wrap justify-center gap-4 text-xs">

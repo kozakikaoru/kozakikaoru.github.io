@@ -48,7 +48,7 @@ function WorkCard({ work }: { work: Work }) {
   return (
     <HudCard
       pad={false}
-      className="group flex flex-col transition-transform duration-300 hover:-translate-y-1"
+      className="group flex flex-col transition-transform duration-300 motion-safe:hover:-translate-y-1"
     >
       {/* サムネイル(GitHub OG 画像は 1200×600 = 2:1)。
           暗スクリムは掛けず、内側のヘアラインで額装して画像を主役にする。 */}

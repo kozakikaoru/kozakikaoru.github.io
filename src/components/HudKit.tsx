@@ -83,7 +83,11 @@ export function HudCard({
   );
 }
 
-/** セクション見出し(アクセントの縦チック + 白見出し)。 */
+/**
+ * セクション見出し(アクセントの縦チック + 白見出し)。
+ * カードの外=背景写真の直上に置かれる用途なので、text-hud-shadow を内蔵して
+ * 影をスクリム代わりにする(背景は朝/昼で白い花が来るため、影が無いと沈む)。
+ */
 export function SectionHeading({
   children,
   className = '',
@@ -93,7 +97,7 @@ export function SectionHeading({
 }) {
   return (
     <h2
-      className={`mb-4 flex items-center gap-2.5 text-lg font-semibold text-white ${className}`}
+      className={`text-hud-shadow mb-4 flex items-center gap-2.5 text-lg font-semibold text-white ${className}`}
     >
       <span
         aria-hidden="true"
@@ -110,7 +114,7 @@ export function SectionHeading({
 
 // アクセント色のボタン共通スタイル(枠線 + うっすら発光。ベタ塗りにはしない)。
 const neonBase =
-  'inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold tracking-wide text-[#eafcff] transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-40';
+  'inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold tracking-wide text-[#eafcff] transition-all motion-safe:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-40';
 const neonStyle = (subtle = false) => ({
   border: `1px solid color-mix(in srgb, var(--page-accent, #7ff3ff) ${subtle ? 35 : 60}%, transparent)`,
   background: `color-mix(in srgb, var(--page-accent, #7ff3ff) ${subtle ? 7 : 14}%, transparent)`,
