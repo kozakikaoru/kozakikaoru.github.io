@@ -6,7 +6,7 @@
 // 背景(朝の明るい空〜夜)に依らず読めるよう、上部に暗いスクリム(グラデ)を敷く。
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router';
-import { PANELS } from '../data/panels';
+import { NAV_PANELS } from '../data/panels';
 import { TimeSwitcher } from './TimeSwitcher';
 
 export function Nav() {
@@ -38,7 +38,7 @@ export function Nav() {
           className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-5 lg:flex"
           aria-label="メインナビゲーション"
         >
-          {PANELS.map((p) => (
+          {NAV_PANELS.map((p) => (
             <NavLink
               key={p.id}
               to={p.to}
@@ -101,7 +101,7 @@ export function Nav() {
             className="flex flex-col gap-0.5"
             aria-label="メインナビゲーション（モバイル）"
           >
-            {PANELS.map((p) => (
+            {NAV_PANELS.map((p) => (
               <NavLink
                 key={p.id}
                 to={p.to}

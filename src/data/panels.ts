@@ -47,7 +47,7 @@ export const PANELS: PanelDef[] = [
   {
     id: 'about',
     to: '/about',
-    label: '自己紹介',
+    label: 'プロフィール',
     displayLabel: '小崎 薫',
     sub: 'PROFILE',
     description: 'わたしについて',
@@ -115,6 +115,36 @@ export const PANELS: PanelDef[] = [
     labelFont: 'wdxl',
   },
 ];
+
+// ------------------------------------------------------------------
+// ナビ(ヘッダー・フッター)の表示順
+// ------------------------------------------------------------------
+// PANELS の並びは 3D 側の都合に縛られている:
+//   - GlassPanel は配列の index から HUD の通し番号(01〜05)を焼き込む
+//     (HeroScene が index={i} を渡し、makeDetailTexture(accent, index + 1) で描画)
+//   - よって PANELS を並べ替えると、TOP のパネル番号が左から 1,4,3,2,5 のように壊れる
+// ナビの順番だけを変えたいときは、PANELS ではなくこの NAV_ORDER を編集すること。
+const NAV_ORDER: readonly string[] = [
+  'about',
+  'career',
+  'works',
+  'music',
+  'contact',
+];
+
+/** ヘッダー・フッターのナビ表示用に並べ替えた PANELS。3D の配置・番号には影響しない。 */
+export const NAV_PANELS: PanelDef[] = (() => {
+  const ordered = NAV_ORDER.map((id) => {
+    const panel = PANELS.find((p) => p.id === id);
+    if (!panel) {
+      throw new Error(`NAV_ORDER の id '${id}' が PANELS に存在しない(定義不整合)`);
+    }
+    return panel;
+  });
+  // NAV_ORDER に載せ忘れたパネルはナビから消さず末尾に回す。
+  const rest = PANELS.filter((p) => !NAV_ORDER.includes(p.id));
+  return [...ordered, ...rest];
+})();
 
 // ------------------------------------------------------------------
 // パネル実寸(単一の真実)

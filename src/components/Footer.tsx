@@ -1,9 +1,9 @@
 // 下層ページのフッター(TOP は全画面ヒーローなので App の FooterSlot が出し分ける)。
-// ナビリンクはハードコードせず PANELS(3D パネル=サイトの一次ナビ)から生成し、
+// ナビリンクはハードコードせず NAV_PANELS(3D パネル=サイトの一次ナビ)から生成し、
 // パネルの追加・改名に自動追従させる。
 // 背景写真の上に直接載るため、文字は白 + 濃い黒影(text-hud-shadow)で読ませる。
 import { Link } from 'react-router';
-import { PANELS } from '../data/panels';
+import { NAV_PANELS } from '../data/panels';
 import { PROFILE } from '../data/profile';
 
 export function Footer() {
@@ -18,7 +18,7 @@ export function Footer() {
         {PROFILE.role}
       </p>
       <div className="mt-4 flex flex-wrap justify-center gap-4 text-xs">
-        {PANELS.map((p) => (
+        {NAV_PANELS.map((p) => (
           // hover は不透明度で出す。文字色は index.css の a{color:inherit} が
           // レイヤー外にあり @layer utilities の hover:text-* に勝つため効かない(Nav と同じ対策)。
           <Link
