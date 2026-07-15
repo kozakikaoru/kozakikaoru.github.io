@@ -195,7 +195,7 @@ export function RecordPlayer() {
                 </h2>
                 {track.date && (
                   <p
-                    className="mt-0.5 text-[11px] tracking-wider text-white/45"
+                    className="mt-0.5 text-[11px] tracking-wider text-white/75"
                     style={{ fontFamily: MONO }}
                   >
                     {track.date}
@@ -217,7 +217,7 @@ export function RecordPlayer() {
                   style={{ accentColor: 'var(--page-accent, #05d9e8)' }}
                 />
                 <div
-                  className="mt-1 flex items-center justify-between text-[11px] tabular-nums text-white/55"
+                  className="mt-1 flex items-center justify-between text-[11px] tabular-nums text-white/75"
                   style={{ fontFamily: MONO }}
                 >
                   <span>{formatTime(currentTime)}</span>
@@ -341,7 +341,7 @@ export function RecordPlayer() {
                       </span>
                       {/* 再生時間 */}
                       <span
-                        className="shrink-0 text-[11px] tabular-nums text-white/50"
+                        className="shrink-0 text-[11px] tabular-nums text-white/75"
                         style={{ fontFamily: MONO }}
                       >
                         {timeLabel(t, i)}
@@ -371,7 +371,7 @@ export function RecordPlayer() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-white/60">この曲の歌詞は準備中です。</p>
+            <p className="text-sm text-white/75">この曲の歌詞は準備中です。</p>
           )}
         </HudCard>
       </section>

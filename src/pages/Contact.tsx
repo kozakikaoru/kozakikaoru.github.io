@@ -16,8 +16,10 @@ const SOCIAL_LINKS: { label: string; href: string }[] = [
 ];
 
 // input / textarea の共通スタイル。focus 時の枠線はページアクセント。
+// プレースホルダは入力済みの値(text-white)とはっきり区別が付く必要があるので
+// 白のままにはできない。/40 は薄すぎたため /55 まで上げて折り合いを付けている。
 const FIELD_CLASS =
-  'w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-white placeholder-white/40 outline-none focus:border-[var(--page-accent)]';
+  'w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-white placeholder-white/55 outline-none focus:border-[var(--page-accent)]';
 
 export default function Contact() {
   const [sent, setSent] = useState(false);
@@ -111,7 +113,7 @@ export default function Contact() {
               </p>
             )}
 
-            <p className="text-center text-[11px] text-white/40">
+            <p className="text-center text-[11px] text-white/75">
               ※ 現在フォームはメール送信（mailto）で動作します。送信サービスとの連携は準備中です。
             </p>
           </form>

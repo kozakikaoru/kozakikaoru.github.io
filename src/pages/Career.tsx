@@ -29,7 +29,8 @@ export default function Career() {
         ))}
       </ol>
 
-      <p className="mt-4 text-center text-xs text-white/50">
+      {/* 背景直置きの注記なので、濃い黒影をスクリム代わりに敷く。 */}
+      <p className="text-hud-shadow mt-4 text-center text-xs text-white/75">
         ※ 掲載内容は一部ぼかしています。詳細はお問い合わせください。
       </p>
     </PageShell>

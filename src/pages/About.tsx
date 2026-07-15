@@ -10,10 +10,7 @@ const ACCENT = '#b14dff';
 
 export default function About() {
   return (
-    <PageShell
-      title="自己紹介"
-      sub="PROFILE"      accent={ACCENT}
-    >
+    <PageShell title="自己紹介" sub="PROFILE" accent={ACCENT}>
       <div className="grid gap-8 md:grid-cols-[280px_1fr]">
         {/* 顔写真 or プレースホルダ(HudCard の額装風・内側に細い余白) */}
         <div>
@@ -51,7 +48,7 @@ export default function About() {
             <dl className="space-y-2 p-4 text-sm text-white/90">
               {PROFILE.facts.map((f) => (
                 <div key={f.label} className="flex justify-between gap-3">
-                  <dt className="text-white/60">{f.label}</dt>
+                  <dt className="text-white/75">{f.label}</dt>
                   <dd className="text-right font-medium">{f.value}</dd>
                 </div>
               ))}
@@ -62,15 +59,16 @@ export default function About() {
         {/* 本文 */}
         <div>
           <HudCard className="text-white sm:p-8">
-            {/* 英字名は HUD の計器ラベル風(等幅+広字間+アクセント色) */}
+            {/* 英字名は HUD の計器ラベル風(等幅+広字間+アクセント色)。
+                生アクセントは暗いカードの上で 1.8:1 しか出ないため文字用の明るい版を使う。 */}
             <p
               className="text-xs font-semibold tracking-[0.3em]"
-              style={{ fontFamily: MONO, color: 'var(--page-accent)' }}
+              style={{ fontFamily: MONO, color: 'var(--page-accent-text)' }}
             >
               {PROFILE.nameEn}
             </p>
             <h2 className="mt-1 text-2xl font-bold">{PROFILE.name}</h2>
-            <p className="mt-1 text-sm text-white/70">{PROFILE.role}</p>
+            <p className="mt-1 text-sm text-white/75">{PROFILE.role}</p>
 
             <div className="mt-6 space-y-4 leading-relaxed text-white/90">
               {PROFILE.bio.map((para, i) => (
