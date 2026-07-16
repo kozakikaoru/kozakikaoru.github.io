@@ -282,9 +282,14 @@ export function RecordPlayer() {
             />
           </div>
 
-          {/* ==== 右: 曲リスト(枠いっぱい・スクロール)==== */}
-          <div className="min-w-0">
-            <ul className="max-h-[320px] divide-y divide-white/5 overflow-y-auto md:max-h-[460px]">
+          {/* ==== 右: 曲リスト(枠いっぱい・スクロール)====
+              PC(md+)では左カラム(アート+操作)の高さに合わせてリストを充填する。
+              max-h 固定だと左カラムより低くなり下に余白が出る(左490 vs リスト460 = 30px)。
+              → md で絶対配置にしてセル(=左カラム高)いっぱいに広げ、内部スクロールさせる。
+              セルは grid の stretch で左カラム高になり、absolute な ul は行高に影響しない。
+              モバイル(縦積み)は隣に基準が無いので従来どおり max-h でスクロール。 */}
+          <div className="min-w-0 md:relative">
+            <ul className="max-h-[320px] divide-y divide-white/5 overflow-y-auto md:absolute md:inset-0 md:max-h-none">
               {TRACKS.map((t, i) => {
                 const active = i === index;
                 const spinning = active && playing;
