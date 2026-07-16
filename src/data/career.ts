@@ -41,16 +41,18 @@ export interface CareerMilestone {
 // 学校名・会社名は掲載OK(2026-07-16 ユーザー承認)。
 //   会社名 = フロイデ株式会社(スキルシート由来)
 //   学校名 = KCS北九州情報専門学校(正式名称・Web確認済 https://www.kcs.ac.jp/kitakyushu/)
-//   高校は掲載不要(ユーザー指示で除外)。専門は入学・卒業の両方を載せる。
+//   高校は卒業のみ(入学は載せない)。専門は入学・卒業の両方を載せる。
 //   「◯◯ 卒業/入学」は助詞「を」を入れずスペース区切り(ユーザー指示)。
-// ★確認待ち(仮置き): 専門入学 2014.04(2年制と仮定し卒業2016.03から逆算)/ 開業 2021.05。
-//   訂正が来たらここを直す。
+//   高校名 = 福岡県立筑豊高等学校(正式名称・Web確認済 https://chikuho.fku.ed.jp/)。
+// ★確認待ち(仮置き): 高校卒業 2014.03 / 専門入学 2014.04(2年制と仮定し卒業2016.03から
+//   逆算)/ 開業 2021.05。訂正が来たらここを直す。
 export const CAREER_MILESTONES: CareerMilestone[] = [
   { id: 'm-freelance', date: '2021.05', sortKey: '2021-05', title: '個人事業主として開業' },
   { id: 'm-leave', date: '2021.04', sortKey: '2021-04', title: 'フロイデ株式会社を退社' },
   { id: 'm-join', date: '2016.04', sortKey: '2016-04', title: 'フロイデ株式会社に入社' },
   { id: 'm-college-grad', date: '2016.03', sortKey: '2016-03', title: 'KCS北九州情報専門学校 卒業' },
   { id: 'm-college-enroll', date: '2014.04', sortKey: '2014-04', title: 'KCS北九州情報専門学校 入学' },
+  { id: 'm-highschool-grad', date: '2014.03', sortKey: '2014-03', title: '福岡県立筑豊高等学校 卒業' },
 ];
 
 export const CAREER_PROJECTS: CareerProject[] = [
