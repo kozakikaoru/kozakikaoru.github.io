@@ -5,40 +5,58 @@
 //                    案件カードとは意図的に見た目の重さを変えている
 //   - YearMarker:    年の区切り。レールに目盛りを打ち、年ラベル+ヘアラインを出す
 //
-// レイアウトの要点(触る前に読むこと):
-//   - 3種とも同じ grid(左列 36px / sm 44px)と --node-y / --rail-gap の約束を共有する。
-//     レールは「自分のノード中心 → 次の項目のノード中心」を繋ぐ
-//     (高さ = 100% + --rail-gap。--rail-gap はその li の pb と必ず同じ値にする)。
-//   - ノード・レールは left-1/2 の同一アンカーに乗せる(x ズレが構造的に起きない)。
+// レールの連続性(重要・ユーザーFB「途切れ途切れで気持ち悪い」対応):
+//   各 li のレールを「自分のノード→次のノード」で描くと、項目ごとに --node-y が
+//   違うため継ぎ目がズレて途切れて見えた。→ 各 li のレールを「li の箱全体」を
+//   縦断する形にして隣接させ、全体で 1 本の連続した直線に見せる:
+//     - 中間: top:0 〜 (100% + --rail-gap)   … li 全高。次 li の top:0 と接する
+//     - 先頭: top:--node-y から             … 最初のノード(目盛り)から始める
+//     - 末尾: top:0 〜 --node-y              … 最後のノードで止める
+//   grid の align は既定 stretch なので左列(100%)= 右列コンテンツ高 = li の content。
+//   それに --rail-gap(= li の pb と必ず同値)を足すと li 全高になり、隙間なく連なる。
+//   レールは単色(グラデ廃止=ユーザーFB)。
+//
+// レイアウトの要点:
+//   - ノード・レールは left-1/2 の同一アンカー(x ズレが構造的に起きない)。
 //   - --node-y は「li 上端 → その項目のノード中心」。行の高さを固定(h-8 等)して
 //     データ差(バッジ有無など)で中心がズレないようにする。
-//   - レール・接続トレースは単色。グラデーションはユーザーFBで「変」と却下済み。
 import type { ReactNode } from 'react';
 import { type CareerMilestone, type CareerProject } from '../data/career';
 import { HudCard, MONO } from './HudKit';
 
+const RAIL_COLOR = 'color-mix(in srgb, var(--page-accent) 42%, transparent)';
+
 /** レール(縦軸)+ 接続トレース + ノードの共通コンテナ(左列)。 */
 function RailColumn({
+  isFirst,
   isLast,
   trace,
   node,
 }: {
+  isFirst: boolean;
   isLast: boolean;
   /** ノードからカード/チップ左辺への横線を引くか(年マーカーは引かない)。 */
   trace: boolean;
   node: ReactNode;
 }) {
+  // 連続レールの縦範囲(上のコメント参照)。
+  const railTop = isFirst ? 'var(--node-y)' : '0';
+  const railHeight = isLast
+    ? isFirst
+      ? '0'
+      : 'var(--node-y)'
+    : isFirst
+      ? 'calc(100% + var(--rail-gap) - var(--node-y))'
+      : 'calc(100% + var(--rail-gap))';
+
   return (
     <div className="relative">
-      {/* 縦レール(単色)。最後の項目では下に伸ばさない。
-          ノードの下に潜り込むが、ノードは不透明な地色を持つので隠れる。 */}
-      {!isLast && (
+      {/* 縦レール(単色・連続) */}
+      {!(isFirst && isLast) && (
         <span
           aria-hidden="true"
-          className="absolute left-1/2 top-[var(--node-y)] h-[calc(100%+var(--rail-gap))] w-[2px] -translate-x-1/2"
-          style={{
-            background: 'color-mix(in srgb, var(--page-accent) 42%, transparent)',
-          }}
+          className="absolute left-1/2 w-[2px] -translate-x-1/2"
+          style={{ top: railTop, height: railHeight, background: RAIL_COLOR }}
         />
       )}
 
@@ -63,10 +81,19 @@ function RailColumn({
 // ------------------------------------------------------------------
 // 年マーカー: レールに目盛り + 年ラベル。時間軸を読みやすくする区切り。
 // ------------------------------------------------------------------
-export function YearMarker({ year, isLast }: { year: string; isLast: boolean }) {
+export function YearMarker({
+  year,
+  isFirst,
+  isLast,
+}: {
+  year: string;
+  isFirst: boolean;
+  isLast: boolean;
+}) {
   return (
     <li className="relative grid grid-cols-[36px_1fr] gap-x-2 pb-3 [--node-y:11px] [--rail-gap:12px] sm:grid-cols-[44px_1fr] sm:gap-x-3">
       <RailColumn
+        isFirst={isFirst}
         isLast={isLast}
         trace={false}
         node={
@@ -75,7 +102,7 @@ export function YearMarker({ year, isLast }: { year: string; isLast: boolean }) 
             aria-hidden="true"
             className="absolute left-1/2 top-[var(--node-y)] h-[2px] w-3 -translate-x-1/2 -translate-y-1/2"
             style={{
-              background: 'color-mix(in srgb, var(--page-accent) 75%, transparent)',
+              background: 'color-mix(in srgb, var(--page-accent) 80%, transparent)',
             }}
           />
         }
@@ -99,14 +126,17 @@ export function YearMarker({ year, isLast }: { year: string; isLast: boolean }) 
 // ------------------------------------------------------------------
 export function MilestoneItem({
   milestone,
+  isFirst,
   isLast,
 }: {
   milestone: CareerMilestone;
+  isFirst: boolean;
   isLast: boolean;
 }) {
   return (
     <li className="relative grid grid-cols-[36px_1fr] gap-x-2 pb-5 [--node-y:16px] [--rail-gap:20px] sm:grid-cols-[44px_1fr] sm:gap-x-3">
       <RailColumn
+        isFirst={isFirst}
         isLast={isLast}
         trace
         node={
@@ -146,15 +176,17 @@ export function MilestoneItem({
 // ------------------------------------------------------------------
 interface TimelineItemProps {
   project: CareerProject;
+  isFirst: boolean;
   isLast: boolean;
 }
 
-export function TimelineItem({ project, isLast }: TimelineItemProps) {
+export function TimelineItem({ project, isFirst, isLast }: TimelineItemProps) {
   const ongoing = project.status === 'ongoing';
 
   return (
     <li className="relative grid grid-cols-[36px_1fr] gap-x-2 pb-6 [--node-y:31.5px] [--rail-gap:24px] sm:grid-cols-[44px_1fr] sm:gap-x-3 sm:pb-7 sm:[--node-y:35.5px] sm:[--rail-gap:28px]">
       <RailColumn
+        isFirst={isFirst}
         isLast={isLast}
         trace
         node={

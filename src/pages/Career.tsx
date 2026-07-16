@@ -62,16 +62,36 @@ export default function Career() {
       {/* タイムライン */}
       <ol className="relative">
         {entries.map((e, i) => {
+          const isFirst = i === 0;
           const isLast = i === entries.length - 1;
           if (e.kind === 'year') {
-            return <YearMarker key={e.key} year={e.year} isLast={isLast} />;
+            return (
+              <YearMarker
+                key={e.key}
+                year={e.year}
+                isFirst={isFirst}
+                isLast={isLast}
+              />
+            );
           }
           if (e.kind === 'milestone') {
             return (
-              <MilestoneItem key={e.key} milestone={e.milestone} isLast={isLast} />
+              <MilestoneItem
+                key={e.key}
+                milestone={e.milestone}
+                isFirst={isFirst}
+                isLast={isLast}
+              />
             );
           }
-          return <TimelineItem key={e.key} project={e.project} isLast={isLast} />;
+          return (
+            <TimelineItem
+              key={e.key}
+              project={e.project}
+              isFirst={isFirst}
+              isLast={isLast}
+            />
+          );
         })}
       </ol>
 
