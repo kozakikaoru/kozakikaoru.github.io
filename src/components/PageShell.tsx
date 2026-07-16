@@ -57,39 +57,21 @@ export function PageShell({
       {/* ページヘッダー(ホームへはヘッダーのサイト名リンクから戻れるため、
           ページ内の「HOME」戻りチップはユーザーFBで撤去) */}
       <header className="mb-10 [animation:var(--animate-fade-up)]">
-        {/* 見出しプレート。背景直置きの文字は時間帯によって(特に朝・昼)読めなくなる
-            ため、見出し自身にダークガラスの面を持たせる(カードと同じ α0.72)。
-            装飾は TOP の 3D パネルの言語を踏襲した「枠外の角ブラケット」(左上・右下)。
-            見出しは極太 Dela Gothic One(単一ウェイトなので 400 固定。bold 指定は
-            faux-bold で字形が崩れるため使わない)。 */}
-        <div className="relative inline-block">
-          <h1
-            className="rounded-xl border border-white/10 bg-[#0a1526]/72 px-5 py-3 text-3xl text-white backdrop-blur-sm sm:px-6 sm:py-3.5 sm:text-4xl"
-            style={{
-              fontFamily: "'Dela Gothic One', var(--font-display)",
-              fontWeight: 400,
-              textShadow: `0 1px 2px rgba(0,0,0,0.45), 0 0 26px ${accent}44`,
-            }}
-          >
-            {title}
-          </h1>
-          <span
-            aria-hidden="true"
-            className="absolute -left-1 -top-1 h-4 w-4 rounded-tl-[14px] border-l-2 border-t-2"
-            style={{
-              borderColor: accent,
-              filter: `drop-shadow(0 0 4px ${accent}66)`,
-            }}
-          />
-          <span
-            aria-hidden="true"
-            className="absolute -bottom-1 -right-1 h-4 w-4 rounded-br-[14px] border-b-2 border-r-2"
-            style={{
-              borderColor: accent,
-              filter: `drop-shadow(0 0 4px ${accent}66)`,
-            }}
-          />
-        </div>
+        {/* 見出し。極太 Dela Gothic One(単一ウェイトなので 400 固定。bold 指定は
+            faux-bold で字形が崩れるため使わない)。
+            パネル(プレート)化はユーザー指示で撤回 → 文字の縁にアクセント色の
+            ストローク + 濃い黒影で、時間帯を問わず背景から浮かせて読ませる。 */}
+        <h1
+          className="text-3xl text-white sm:text-4xl"
+          style={{
+            fontFamily: "'Dela Gothic One', var(--font-display)",
+            fontWeight: 400,
+            WebkitTextStroke: `1.4px ${accent}`,
+            textShadow: `0 1px 3px rgba(0,0,0,0.92), 0 0 7px rgba(0,0,0,0.6), 0 0 24px ${accent}55`,
+          }}
+        >
+          {title}
+        </h1>
 
         {/* リード文も背景直置きなので、本文の不透明度 + 濃い黒影で読ませる。 */}
         {lead && (

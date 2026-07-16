@@ -40,24 +40,33 @@ export const PROFILE: Profile = {
     { label: 'X', handle: '@kaoruby_', url: 'https://x.com/kaoruby_' },
   ],
   skills: [
-    // ★仮のスキル一覧。本人確認後に差し替える。
-    {
-      category: 'フロントエンド',
-      items: ['TypeScript', 'React', 'Next.js', 'Vue', 'Tailwind CSS', 'WebGL / Three.js'],
-    },
+    // スキルシート(.company/skillsheet.md=職務経歴)と GitHub の公開リポジトリから整理。
+    // バックエンド = 本業の中心(全案件 Ruby/Rails)。フロントエンドは案件(Vue)+
+    // 個人開発(React/TS/Tailwind/Three.js=このサイト等)。各項目は SkillIcon にアイコンあり。
     {
       category: 'バックエンド',
-      items: ['Node.js', 'Python', 'REST / GraphQL', 'PostgreSQL', 'Firebase'],
+      items: ['Ruby', 'Ruby on Rails', 'RSpec', 'MySQL'],
     },
     {
-      category: 'その他',
-      items: ['UI / UX設計', 'アクセシビリティ', 'CI/CD', 'AWS', 'Figma'],
+      category: 'フロントエンド',
+      items: [
+        'TypeScript',
+        'JavaScript',
+        'React',
+        'Vue.js',
+        'HTML',
+        'CSS',
+        'Tailwind CSS',
+        'Three.js',
+      ],
+    },
+    {
+      category: 'ツール・インフラ',
+      items: ['AWS', 'Docker', 'Git', 'GitHub'],
     },
   ],
   facts: [
-    // ★仮のプロフィール項目。稼働条件などの約束事は書かず、汎用の事実に留める。
-    { label: '拠点', value: '日本' },
-    { label: '主な領域', value: 'Webフロントエンド' },
-    { label: '最近のテーマ', value: 'AIとのものづくり' },
+    { label: '拠点', value: '福岡県の田舎の方' },
+    { label: '生年月日', value: '1995年12月3日' },
   ],
 };
