@@ -25,7 +25,11 @@ export function TimeBackground() {
               src={asset.webp}
               alt=""
               draggable={false}
-              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-[1200ms] ease-in-out will-change-[opacity]"
+              // 背景は横長(1672x941)なので、縦長のスマホでは左右が大きく切り落とされる。
+              // 既定の object-position(中央)だと、花が密集した左側が切れて、空と水面
+              // ばかりの中央だけが残る。スマホ幅では切り出しを左へ寄せて花を入れる。
+              // sm(640px)以上は横幅が足りるので従来どおり中央。
+              className="absolute inset-0 h-full w-full object-cover object-[30%_center] transition-opacity duration-[1200ms] ease-in-out will-change-[opacity] sm:object-center"
               style={{ opacity: visible ? 1 : 0 }}
             />
           </picture>
