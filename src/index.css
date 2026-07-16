@@ -100,10 +100,16 @@ body {
   isolation: isolate;
 }
 
-/* リンクのデフォルト下線を外し、コンポーネント側で制御 */
-a {
-  color: inherit;
-  text-decoration: none;
+/* リンクのデフォルト下線を外し、コンポーネント側で制御。
+   ★ @layer base に入れること。レイヤー外に置くと「非レイヤー > 全レイヤー」の
+   カスケード規則により Tailwind の @layer utilities に勝ってしまい、<a> に付けた
+   text-* / underline が無言で効かなくなる(実際に Contact のメールリンクで
+   下線とテキスト色が死んでいた)。base に入れればユーティリティ側が正しく勝つ。 */
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
 /* フォーカスリング: アクセシビリティ用に常に見えるように */
