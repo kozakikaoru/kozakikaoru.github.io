@@ -4,7 +4,7 @@ import { RecordPlayer } from '../components/music/RecordPlayer';
 
 export default function Music() {
   return (
-    <PageShell title="制作楽曲" sub="AI MUSIC" accent="#05d9e8">
+    <PageShell title="制作楽曲" accent="#05d9e8">
       <RecordPlayer />
 
       {/* 配信についての案内は一旦コメントアウト(ユーザーFB)。

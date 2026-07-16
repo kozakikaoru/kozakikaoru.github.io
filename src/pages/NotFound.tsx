@@ -19,7 +19,7 @@ const NEON_LINK_STYLE: CSSProperties = {
 
 export default function NotFound() {
   return (
-    <PageShell title="ページが見つかりません" sub="404" accent={ACCENT}>
+    <PageShell title="ページが見つかりません" accent={ACCENT}>
       <HudCard className="text-center text-white sm:p-8">
         <MonoTag>ERR 404 // NO SIGNAL</MonoTag>
         {/* Dela Gothic One は単一ウェイト体のため 400 固定(faux-bold 回避) */}

@@ -58,7 +58,7 @@ export default function Career() {
   }, []);
 
   return (
-    <PageShell title="経歴" sub="CAREER" accent={ACCENT}>
+    <PageShell title="経歴" accent={ACCENT}>
       {/* タイムライン */}
       <ol className="relative">
         {entries.map((e, i) => {

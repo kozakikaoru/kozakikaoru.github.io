@@ -10,7 +10,7 @@ const ACCENT = '#b14dff';
 
 export default function About() {
   return (
-    <PageShell title="プロフィール" sub="PROFILE" accent={ACCENT}>
+    <PageShell title="プロフィール" accent={ACCENT}>
       <div className="grid gap-8 md:grid-cols-[280px_1fr]">
         {/* 顔写真 or プレースホルダ(HudCard の額装風・内側に細い余白) */}
         <div>

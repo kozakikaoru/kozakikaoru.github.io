@@ -43,7 +43,6 @@ export default function Contact() {
   return (
     <PageShell
       title="お問い合わせ"
-      sub="CONTACT"
       lead="お仕事のご相談・ご依頼はこちらから。内容を確認のうえ、折り返しご連絡します。お気軽にどうぞ。"
       accent={ACCENT}
     >
