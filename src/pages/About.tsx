@@ -2,7 +2,14 @@
 // レイアウト(写真+facts | 本文+スキル)は従来どおり、カード類を HudKit
 // (ダークガラス+アクセントヘアライン)へ置き換え、旧ライトガラスを全廃。
 import { PageShell } from '../components/PageShell';
-import { Chip, HudCard, MONO, SectionHeading } from '../components/HudKit';
+import {
+  Chip,
+  HudCard,
+  IconGitHub,
+  IconX,
+  MONO,
+  SectionHeading,
+} from '../components/HudKit';
 import { PROFILE } from '../data/profile';
 
 // ページアクセント(panels.ts の about と同色)。
@@ -73,6 +80,25 @@ export default function About() {
             <div className="mt-6 space-y-4 leading-relaxed text-white/90">
               {PROFILE.bio.map((para, i) => (
                 <p key={i}>{para}</p>
+              ))}
+            </div>
+
+            {/* SNS・外部アカウント。ハンドル名を見せるピル型リンク(高さ44px=タップ領域)。
+                アイコンは装飾(aria-hidden)、リンク名は可視のハンドルが担う。 */}
+            <div className="mt-6 flex flex-wrap gap-2.5">
+              {PROFILE.socials.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${s.label} ${s.handle}`}
+                  className="inline-flex h-11 items-center gap-2 rounded-lg border border-white/20 bg-white/[0.06] px-4 text-[13px] text-white/85 transition-opacity hover:opacity-80"
+                  style={{ fontFamily: MONO }}
+                >
+                  {s.label === 'GitHub' ? <IconGitHub /> : <IconX />}
+                  {s.handle}
+                </a>
               ))}
             </div>
           </HudCard>

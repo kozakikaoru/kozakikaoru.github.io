@@ -14,6 +14,8 @@ export interface Profile {
   /** 顔写真の URL。null の間はプレースホルダを表示する。 */
   avatarUrl: string | null;
   bio: string[];
+  /** SNS・外部アカウント(プロフィールカードの下部にリンク表示)。 */
+  socials: { label: string; handle: string; url: string }[];
   /** スキル(単独ページは持たず、ここに内包)。 */
   skills: { category: string; items: string[] }[];
   /** ちょっとした人柄が伝わる項目。 */
@@ -32,6 +34,10 @@ export const PROFILE: Profile = {
     'Webを中心にものづくりをしているエンジニアです。ReactやTypeScriptが好きで、小さなアプリやツールをつくっては公開しています。',
     '最近はAIを使ったものづくりを楽しんでいます。このサイトも、掲載している楽曲も、AIとの共同制作です。',
     'つくったものはGitHubで公開しています。気になるものがあれば、お気軽にご連絡ください。',
+  ],
+  socials: [
+    { label: 'GitHub', handle: 'kozakikaoru', url: 'https://github.com/kozakikaoru' },
+    { label: 'X', handle: '@kaoruby_', url: 'https://x.com/kaoruby_' },
   ],
   skills: [
     // ★仮のスキル一覧。本人確認後に差し替える。
