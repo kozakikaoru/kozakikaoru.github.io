@@ -1,21 +1,149 @@
-// 経歴タイムラインの1項目。左に計器ノード + 接続レール、右に案件カード。
+// 経歴タイムラインの項目群。左に計器レール(縦の時間軸)、右に内容。
+// 3種類の <li> を提供する:
+//   - TimelineItem:  案件カード(詳細あり)
+//   - MilestoneItem: 節目(卒業・入社・独立など)。タイトルだけの1行チップで、
+//                    案件カードとは意図的に見た目の重さを変えている
+//   - YearMarker:    年の区切り。レールに目盛りを打ち、年ラベル+ヘアラインを出す
 //
 // レイアウトの要点(触る前に読むこと):
-//   - ノードとレールは同じ列の left-1/2 に置き、どちらも -translate-x-1/2 で中央に寄せる。
-//     以前は両者の x を別々の実数(left-[26px] / left-[10px]+w-6)で置いていたため
-//     sm で 4px ズレていた。同一アンカーに乗せてズレを構造的に起こせなくしている。
-//   - 縦位置は --node-y(カード上端からノード中心=期間行の中心まで)で一元管理。
-//     = カードの枠線(1px)+ 上余白(p-5=20 / sm:p-6=24)+ 期間行の高さ(21px)の半分。
-//     カードの上余白か期間行の高さを変えたら、この値も直すこと。
-//   - 期間行は h-[21px] で高さを固定してある。バッジ(21px)は期間テキスト(約16.5px)より
-//     背が高いため、固定しないと「バッジの有無」で行の中心=ノードのY位置が 2.25px ズレる
-//     (= データ次第でズレるので、案件にバッジを足しただけで崩れる)。
-//   - レールの伸ばし量 --rail-gap は li の下余白(pb-6 / sm:pb-7)と必ず同じ値にする。
-//     レールは「自分のノード中心 → 次のノード中心」を繋ぐので、
-//     高さ = 列の高さ + カード間の隙間 = 100% + --rail-gap になる。
-import { type CareerProject } from '../data/career';
+//   - 3種とも同じ grid(左列 36px / sm 44px)と --node-y / --rail-gap の約束を共有する。
+//     レールは「自分のノード中心 → 次の項目のノード中心」を繋ぐ
+//     (高さ = 100% + --rail-gap。--rail-gap はその li の pb と必ず同じ値にする)。
+//   - ノード・レールは left-1/2 の同一アンカーに乗せる(x ズレが構造的に起きない)。
+//   - --node-y は「li 上端 → その項目のノード中心」。行の高さを固定(h-8 等)して
+//     データ差(バッジ有無など)で中心がズレないようにする。
+//   - レール・接続トレースは単色。グラデーションはユーザーFBで「変」と却下済み。
+import type { ReactNode } from 'react';
+import { type CareerMilestone, type CareerProject } from '../data/career';
 import { HudCard, MONO } from './HudKit';
 
+/** レール(縦軸)+ 接続トレース + ノードの共通コンテナ(左列)。 */
+function RailColumn({
+  isLast,
+  trace,
+  node,
+}: {
+  isLast: boolean;
+  /** ノードからカード/チップ左辺への横線を引くか(年マーカーは引かない)。 */
+  trace: boolean;
+  node: ReactNode;
+}) {
+  return (
+    <div className="relative">
+      {/* 縦レール(単色)。最後の項目では下に伸ばさない。
+          ノードの下に潜り込むが、ノードは不透明な地色を持つので隠れる。 */}
+      {!isLast && (
+        <span
+          aria-hidden="true"
+          className="absolute left-1/2 top-[var(--node-y)] h-[calc(100%+var(--rail-gap))] w-[2px] -translate-x-1/2"
+          style={{
+            background: 'color-mix(in srgb, var(--page-accent) 42%, transparent)',
+          }}
+        />
+      )}
+
+      {/* ノード→内容への接続トレース(単色)。列の中心から内容の左辺まで。
+          右端の -right-2 / sm:-right-3 は grid の gap-x-2 / sm:gap-x-3 と対で、
+          gap を変えるならここも合わせること。 */}
+      {trace && (
+        <span
+          aria-hidden="true"
+          className="absolute -right-2 left-1/2 top-[var(--node-y)] h-px -translate-y-1/2 sm:-right-3"
+          style={{
+            background: 'color-mix(in srgb, var(--page-accent) 28%, transparent)',
+          }}
+        />
+      )}
+
+      {node}
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------
+// 年マーカー: レールに目盛り + 年ラベル。時間軸を読みやすくする区切り。
+// ------------------------------------------------------------------
+export function YearMarker({ year, isLast }: { year: string; isLast: boolean }) {
+  return (
+    <li className="relative grid grid-cols-[36px_1fr] gap-x-2 pb-3 [--node-y:11px] [--rail-gap:12px] sm:grid-cols-[44px_1fr] sm:gap-x-3">
+      <RailColumn
+        isLast={isLast}
+        trace={false}
+        node={
+          // 目盛り(定規の刻み)。レールを横切る短い水平線
+          <span
+            aria-hidden="true"
+            className="absolute left-1/2 top-[var(--node-y)] h-[2px] w-3 -translate-x-1/2 -translate-y-1/2"
+            style={{
+              background: 'color-mix(in srgb, var(--page-accent) 75%, transparent)',
+            }}
+          />
+        }
+      />
+      {/* 行高を h-[22px] に固定(--node-y:11px の前提)。 */}
+      <div className="flex h-[22px] items-center gap-3">
+        <span
+          className="text-hud-shadow text-sm font-bold tracking-[0.22em] text-white/85"
+          style={{ fontFamily: MONO }}
+        >
+          {year}
+        </span>
+        <span aria-hidden="true" className="h-px flex-1 bg-white/10" />
+      </div>
+    </li>
+  );
+}
+
+// ------------------------------------------------------------------
+// 節目: タイトルだけの1行チップ(卒業・入社・独立など)。詳細は持たない。
+// ------------------------------------------------------------------
+export function MilestoneItem({
+  milestone,
+  isLast,
+}: {
+  milestone: CareerMilestone;
+  isLast: boolean;
+}) {
+  return (
+    <li className="relative grid grid-cols-[36px_1fr] gap-x-2 pb-5 [--node-y:16px] [--rail-gap:20px] sm:grid-cols-[44px_1fr] sm:gap-x-3">
+      <RailColumn
+        isLast={isLast}
+        trace
+        node={
+          // 小さめのダイヤ(案件ノードの縮小版・発光なし)。格の違いを出す
+          <span
+            aria-hidden="true"
+            className="absolute left-1/2 top-[var(--node-y)] h-2 w-2 -translate-x-1/2 -translate-y-1/2 rotate-45"
+            style={{
+              background: '#0a1526',
+              border:
+                '1px solid color-mix(in srgb, var(--page-accent) 55%, transparent)',
+            }}
+          />
+        }
+      />
+      {/* チップ高を h-8(32px)に固定(--node-y:16px の前提)。 */}
+      <div>
+        <span
+          className="inline-flex h-8 items-center gap-2.5 rounded-lg border border-white/12 px-3 backdrop-blur-sm"
+          style={{ background: 'rgba(10,21,38,0.72)' }}
+        >
+          <time
+            className="text-[11px] tracking-[0.14em] tabular-nums"
+            style={{ fontFamily: MONO, color: 'var(--page-accent-text)' }}
+          >
+            {milestone.date}
+          </time>
+          <span className="text-[13px] text-white/90">{milestone.title}</span>
+        </span>
+      </div>
+    </li>
+  );
+}
+
+// ------------------------------------------------------------------
+// 案件カード
+// ------------------------------------------------------------------
 interface TimelineItemProps {
   project: CareerProject;
   isLast: boolean;
@@ -26,64 +154,37 @@ export function TimelineItem({ project, isLast }: TimelineItemProps) {
 
   return (
     <li className="relative grid grid-cols-[36px_1fr] gap-x-2 pb-6 [--node-y:31.5px] [--rail-gap:24px] sm:grid-cols-[44px_1fr] sm:gap-x-3 sm:pb-7 sm:[--node-y:35.5px] sm:[--rail-gap:28px]">
-      {/* 計器ノード + 接続レール(HUD 回路調)。すべて装飾なので aria-hidden。
-          「細い1pxの線 + 丸」だと安く見える、というユーザーFBを受けた v2:
-          レール=2pxの光条(グロー付き) / ノード=ダイヤ型ウェイポイント /
-          ノードからカードへ配線トレースを1本這わせて、レールとカードを接続する。 */}
-      <div className="relative">
-        {/* 縦レール: 2px の光条。ノード中心から次のノード中心まで(最後は出さない)。
-            ノードの下に潜り込むが、ノードは不透明な地色を持つので隠れる。 */}
-        {!isLast && (
+      <RailColumn
+        isLast={isLast}
+        trace
+        node={
+          // ダイヤ型ノード(HUD のウェイポイント)。進行中だけ発光を強める
           <span
             aria-hidden="true"
-            className="absolute left-1/2 top-[var(--node-y)] h-[calc(100%+var(--rail-gap))] w-[2px] -translate-x-1/2"
+            className="absolute left-1/2 top-[var(--node-y)] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45"
             style={{
-              background:
-                'linear-gradient(to bottom, color-mix(in srgb, var(--page-accent) 62%, transparent), color-mix(in srgb, var(--page-accent) 10%, transparent))',
-              boxShadow:
-                '0 0 8px color-mix(in srgb, var(--page-accent) 22%, transparent)',
+              background: '#0a1526',
+              border: `1.5px solid ${
+                ongoing
+                  ? 'var(--page-accent)'
+                  : 'color-mix(in srgb, var(--page-accent) 48%, transparent)'
+              }`,
+              boxShadow: ongoing
+                ? '0 0 12px color-mix(in srgb, var(--page-accent) 60%, transparent)'
+                : 'none',
             }}
-          />
-        )}
-
-        {/* ノード→カードの接続トレース(回路の配線)。列の中心からカード左辺まで。
-            右端の -right-2 / sm:-right-3 は grid の gap-x-2 / sm:gap-x-3 と対で、
-            gap を変えるならここも合わせること。 */}
-        <span
-          aria-hidden="true"
-          className="absolute -right-2 left-1/2 top-[var(--node-y)] h-px -translate-y-1/2 sm:-right-3"
-          style={{
-            background:
-              'linear-gradient(90deg, color-mix(in srgb, var(--page-accent) 50%, transparent), color-mix(in srgb, var(--page-accent) 14%, transparent))',
-          }}
-        />
-
-        {/* ダイヤ型ノード(HUD のウェイポイント)。進行中だけ発光を強める */}
-        <span
-          aria-hidden="true"
-          className="absolute left-1/2 top-[var(--node-y)] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45"
-          style={{
-            background: '#0a1526',
-            border: `1.5px solid ${
-              ongoing
-                ? 'var(--page-accent)'
-                : 'color-mix(in srgb, var(--page-accent) 48%, transparent)'
-            }`,
-            boxShadow: ongoing
-              ? '0 0 12px color-mix(in srgb, var(--page-accent) 60%, transparent)'
-              : '0 0 5px color-mix(in srgb, var(--page-accent) 16%, transparent)',
-          }}
-        >
-          <span
-            className="absolute inset-[3px]"
-            style={{
-              background: ongoing
-                ? 'var(--page-accent)'
-                : 'color-mix(in srgb, var(--page-accent) 42%, transparent)',
-            }}
-          />
-        </span>
-      </div>
+          >
+            <span
+              className="absolute inset-[3px]"
+              style={{
+                background: ongoing
+                  ? 'var(--page-accent)'
+                  : 'color-mix(in srgb, var(--page-accent) 42%, transparent)',
+              }}
+            />
+          </span>
+        }
+      />
 
       {/* 案件カード。余白を className で持つので pad={false}(HudCard の既定 p-6 と衝突させない)。 */}
       <HudCard pad={false} className="p-5 sm:p-6">

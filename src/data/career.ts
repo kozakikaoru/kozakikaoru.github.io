@@ -27,6 +27,29 @@ export interface CareerProject {
   outcome?: string;
 }
 
+/** 節目(入学・入社・独立など)。詳細を持たない1行の目印としてタイムラインに混ぜる。 */
+export interface CareerMilestone {
+  id: string;
+  /** 表示日付('YYYY.MM')。 */
+  date: string;
+  /** ソート用の年月(YYYY-MM)。案件と混ぜて新しい順に並べる。 */
+  sortKey: string;
+  /** 節目のタイトル(1行・詳細なし)。 */
+  title: string;
+}
+
+// 学校名・会社名は掲載OK(2026-07-16 ユーザー承認)。会社名はスキルシート由来。
+// ★確認待ち: 学校名(高校・専門学校の名称は未提供→もらったら title に追記)/
+//   日付3件は仮置き=高校卒業2014.03(専門2年制を仮定)・専門卒業2016.03(入社直前と
+//   推定)・開業2021.05。訂正が来たらここを直す。
+export const CAREER_MILESTONES: CareerMilestone[] = [
+  { id: 'm-freelance', date: '2021.05', sortKey: '2021-05', title: '個人事業主として開業' },
+  { id: 'm-leave', date: '2021.04', sortKey: '2021-04', title: 'フロイデ株式会社を退社' },
+  { id: 'm-join', date: '2016.04', sortKey: '2016-04', title: 'フロイデ株式会社に入社' },
+  { id: 'm-college', date: '2016.03', sortKey: '2016-03', title: '専門学校 卒業' },
+  { id: 'm-highschool', date: '2014.03', sortKey: '2014-03', title: '高校 卒業' },
+];
+
 export const CAREER_PROJECTS: CareerProject[] = [
   {
     id: 'c1',
