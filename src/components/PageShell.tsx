@@ -59,15 +59,15 @@ export function PageShell({
       <header className="mb-10 [animation:var(--animate-fade-up)]">
         {/* 見出し。極太 Dela Gothic One(単一ウェイトなので 400 固定。bold 指定は
             faux-bold で字形が崩れるため使わない)。
-            パネル(プレート)化はユーザー指示で撤回 → 文字の縁にアクセント色の
-            ストローク + 濃い黒影で、時間帯を問わず背景から浮かせて読ませる。 */}
+            装飾はストロークでもプレートでもなく「濃い影」(ユーザー指示):
+            下に落ちる硬い影で文字を背景から持ち上げ + 周囲の暗がり + 弱いアクセント光。
+            時間帯を問わず(朝・昼の明るい空でも)読めるよう影は濃いめに。 */}
         <h1
           className="text-3xl text-white sm:text-4xl"
           style={{
             fontFamily: "'Dela Gothic One', var(--font-display)",
             fontWeight: 400,
-            WebkitTextStroke: `1.4px ${accent}`,
-            textShadow: `0 1px 3px rgba(0,0,0,0.92), 0 0 7px rgba(0,0,0,0.6), 0 0 24px ${accent}55`,
+            textShadow: `0 3px 0 rgba(10,21,38,0.85), 0 5px 14px rgba(0,0,0,0.75), 0 0 26px rgba(0,0,0,0.5), 0 0 30px ${accent}55`,
           }}
         >
           {title}

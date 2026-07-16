@@ -46,21 +46,8 @@ export function TimeBackground() {
         }}
       />
 
-      {/* ネオングリッド(地面を走る光)。世界観「デジタルの光」の演出。 */}
-      <div
-        className="absolute inset-x-0 bottom-0 h-[42%] opacity-40"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(77,208,225,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(77,208,225,0.35) 1px, transparent 1px)',
-          backgroundSize: '64px 64px',
-          maskImage:
-            'linear-gradient(to top, rgba(0,0,0,0.9), transparent)',
-          WebkitMaskImage:
-            'linear-gradient(to top, rgba(0,0,0,0.9), transparent)',
-          transform: 'perspective(400px) rotateX(60deg)',
-          transformOrigin: 'bottom',
-        }}
-      />
+      {/* 旧: 画面下部のネオングリッド(パースの掛かった格子)はユーザー指示で撤去。
+          背景写真そのものに写り込んでいる光の線とは別物(あちらは画像由来)。 */}
     </div>
   );
 }

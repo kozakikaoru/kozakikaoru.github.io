@@ -45,7 +45,7 @@ export const PROFILE: Profile = {
     // 個人開発(React/TS/Tailwind/Three.js=このサイト等)。各項目は SkillIcon にアイコンあり。
     {
       category: 'バックエンド',
-      items: ['Ruby', 'Ruby on Rails', 'RSpec', 'MySQL'],
+      items: ['Ruby', 'Ruby on Rails', 'RSpec'],
     },
     {
       category: 'フロントエンド',
@@ -62,7 +62,7 @@ export const PROFILE: Profile = {
     },
     {
       category: 'ツール・インフラ',
-      items: ['AWS', 'Docker', 'Git', 'GitHub'],
+      items: ['AWS', 'MySQL', 'Docker', 'Git', 'GitHub'],
     },
   ],
   facts: [
