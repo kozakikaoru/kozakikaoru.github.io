@@ -26,43 +26,60 @@ export function TimelineItem({ project, isLast }: TimelineItemProps) {
 
   return (
     <li className="relative grid grid-cols-[36px_1fr] gap-x-2 pb-6 [--node-y:31.5px] [--rail-gap:24px] sm:grid-cols-[44px_1fr] sm:gap-x-3 sm:pb-7 sm:[--node-y:35.5px] sm:[--rail-gap:28px]">
-      {/* 計器ノード + 接続レール */}
+      {/* 計器ノード + 接続レール(HUD 回路調)。すべて装飾なので aria-hidden。
+          「細い1pxの線 + 丸」だと安く見える、というユーザーFBを受けた v2:
+          レール=2pxの光条(グロー付き) / ノード=ダイヤ型ウェイポイント /
+          ノードからカードへ配線トレースを1本這わせて、レールとカードを接続する。 */}
       <div className="relative">
-        {/* 接続レール(最後の項目では下に伸ばさない)。
+        {/* 縦レール: 2px の光条。ノード中心から次のノード中心まで(最後は出さない)。
             ノードの下に潜り込むが、ノードは不透明な地色を持つので隠れる。 */}
         {!isLast && (
           <span
             aria-hidden="true"
-            className="absolute left-1/2 top-[var(--node-y)] h-[calc(100%+var(--rail-gap))] w-px -translate-x-1/2"
+            className="absolute left-1/2 top-[var(--node-y)] h-[calc(100%+var(--rail-gap))] w-[2px] -translate-x-1/2"
             style={{
               background:
-                'linear-gradient(to bottom, color-mix(in srgb, var(--page-accent) 55%, transparent), color-mix(in srgb, var(--page-accent) 8%, transparent))',
+                'linear-gradient(to bottom, color-mix(in srgb, var(--page-accent) 62%, transparent), color-mix(in srgb, var(--page-accent) 10%, transparent))',
+              boxShadow:
+                '0 0 8px color-mix(in srgb, var(--page-accent) 22%, transparent)',
             }}
           />
         )}
 
-        {/* ノード(進行中だけ枠を強め + 発光。他は控えめ) */}
+        {/* ノード→カードの接続トレース(回路の配線)。列の中心からカード左辺まで。
+            右端の -right-2 / sm:-right-3 は grid の gap-x-2 / sm:gap-x-3 と対で、
+            gap を変えるならここも合わせること。 */}
         <span
           aria-hidden="true"
-          className="absolute left-1/2 top-[var(--node-y)] h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          className="absolute -right-2 left-1/2 top-[var(--node-y)] h-px -translate-y-1/2 sm:-right-3"
+          style={{
+            background:
+              'linear-gradient(90deg, color-mix(in srgb, var(--page-accent) 50%, transparent), color-mix(in srgb, var(--page-accent) 14%, transparent))',
+          }}
+        />
+
+        {/* ダイヤ型ノード(HUD のウェイポイント)。進行中だけ発光を強める */}
+        <span
+          aria-hidden="true"
+          className="absolute left-1/2 top-[var(--node-y)] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45"
           style={{
             background: '#0a1526',
             border: `1.5px solid ${
               ongoing
                 ? 'var(--page-accent)'
-                : 'color-mix(in srgb, var(--page-accent) 42%, transparent)'
+                : 'color-mix(in srgb, var(--page-accent) 48%, transparent)'
             }`,
             boxShadow: ongoing
-              ? '0 0 10px color-mix(in srgb, var(--page-accent) 55%, transparent)'
-              : 'none',
+              ? '0 0 12px color-mix(in srgb, var(--page-accent) 60%, transparent)'
+              : '0 0 5px color-mix(in srgb, var(--page-accent) 16%, transparent)',
           }}
         >
           <span
-            className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full"
+            className="absolute inset-[3px]"
             style={{
               background: ongoing
                 ? 'var(--page-accent)'
-                : 'color-mix(in srgb, var(--page-accent) 48%, transparent)',
+                : 'color-mix(in srgb, var(--page-accent) 42%, transparent)',
             }}
           />
         </span>
