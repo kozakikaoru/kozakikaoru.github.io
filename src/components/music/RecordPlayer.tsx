@@ -127,10 +127,12 @@ export function RecordPlayer() {
     changeTrack(i, true);
   };
 
-  /** 再生終了: 次の曲へ(自動では再生しない)。 */
+  /** 再生終了: 次の曲へ進めてそのまま再生(連続再生・末尾まで行ったら先頭へループ)。
+      ended イベント起点の play() はユーザー操作済みの <audio> なので自動再生制限に
+      掛からない(万一失敗しても pendingPlay 側の catch で停止状態に戻る)。 */
   const handleEnded = () => {
     setPlaying(false);
-    changeTrack(index + 1, false);
+    changeTrack(index + 1, true);
   };
 
   /** シークバー操作。 */
