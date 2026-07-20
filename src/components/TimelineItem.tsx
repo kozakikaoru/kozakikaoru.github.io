@@ -17,7 +17,9 @@ import { type CareerMilestone, type CareerProject } from '../data/career';
 import { Chip, HudCard, MONO } from './HudKit';
 import { SkillIcon } from './SkillIcon';
 
-/** 年月ラベル行。線上のドット + 日付(+ 節目のタイトル等の後続要素)。 */
+/** 年月ラベル行。線上のドット + 日付ピル(+ 節目のタイトル等の後続要素)。
+    日付は背景直置きだと昼の明るい空で読めない(ユーザーFB)ため、
+    小さなダークピルに載せて面を持たせる。 */
 function DateRow({ date, children }: { date: string; children?: ReactNode }) {
   return (
     <div className="relative flex flex-wrap items-center gap-x-2.5 gap-y-1">
@@ -32,8 +34,13 @@ function DateRow({ date, children }: { date: string; children?: ReactNode }) {
         }}
       />
       <time
-        className="text-hud-shadow text-[13px] tracking-[0.14em] tabular-nums"
-        style={{ fontFamily: MONO, color: 'var(--page-accent-text)' }}
+        className="inline-flex h-7 items-center rounded-md border px-2.5 text-[13px] tracking-[0.14em] tabular-nums backdrop-blur-sm"
+        style={{
+          fontFamily: MONO,
+          color: 'var(--page-accent-text)',
+          background: 'rgba(10,21,38,0.72)',
+          borderColor: 'color-mix(in srgb, var(--page-accent) 32%, transparent)',
+        }}
       >
         {date}
       </time>
@@ -50,9 +57,9 @@ export function MilestoneItem({ milestone }: { milestone: CareerMilestone }) {
     <li>
       <DateRow date={milestone.date}>
         {/* タイトルは小さなパネルに載せる(背景と被って読みにくいため面を持たせる)。
-            日付は案件と同じく枠の外・線の上。 */}
+            日付は案件と同じく枠の外・線の上。高さは日付ピル(h-7)と揃える。 */}
         <span
-          className="inline-flex h-8 items-center rounded-lg border border-white/12 px-3 text-[13px] text-white/90 backdrop-blur-sm"
+          className="inline-flex h-7 items-center rounded-md border border-white/12 px-3 text-[13px] text-white/90 backdrop-blur-sm"
           style={{ background: 'rgba(10,21,38,0.72)' }}
         >
           {milestone.title}
