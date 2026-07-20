@@ -1,13 +1,9 @@
 // 経歴(Career)ページ。客先に見せる想定で、案件と節目を1本のタイムラインに載せる。
-// 新しい順に並べ、年が変わる位置に YearMarker(目盛り+年ラベル)を挟んで
-// 時間軸を読みやすくする。
+// 新しい順(上=最新)に並べる。時系列は下から上へ流れ、各案件が自分の
+// 開始年月(下)と終了年月(上)を持つ(年マーカーはユーザー指示で廃止)。
 import { useMemo } from 'react';
 import { PageShell } from '../components/PageShell';
-import {
-  MilestoneItem,
-  TimelineItem,
-  YearMarker,
-} from '../components/TimelineItem';
+import { MilestoneItem, TimelineItem } from '../components/TimelineItem';
 import {
   CAREER_MILESTONES,
   CAREER_PROJECTS,
@@ -18,81 +14,43 @@ import {
 // ページアクセント(panels.ts の career と同色)。
 const ACCENT = '#ff9e2c';
 
-// タイムラインの1エントリ(案件 / 節目 / 年区切り)。
+// タイムラインの1エントリ(案件 / 節目)。
 type Entry =
-  | { kind: 'year'; key: string; year: string }
   | { kind: 'project'; key: string; project: CareerProject }
   | { kind: 'milestone'; key: string; milestone: CareerMilestone };
 
 export default function Career() {
-  // 案件と節目を混ぜて新しい順に並べ、年が変わる位置に年マーカーを挟む。
-  const entries = useMemo<Entry[]>(() => {
-    const items = [
-      ...CAREER_PROJECTS.map((p) => ({
-        kind: 'project' as const,
-        sortKey: p.sortKey,
-        project: p,
-      })),
-      ...CAREER_MILESTONES.map((m) => ({
-        kind: 'milestone' as const,
-        sortKey: m.sortKey,
-        milestone: m,
-      })),
-    ].sort((a, b) => b.sortKey.localeCompare(a.sortKey));
-
-    const out: Entry[] = [];
-    let year = '';
-    for (const it of items) {
-      const y = it.sortKey.slice(0, 4);
-      if (y !== year) {
-        out.push({ kind: 'year', key: `year-${y}`, year: y });
-        year = y;
-      }
-      out.push(
-        it.kind === 'project'
-          ? { kind: 'project', key: it.project.id, project: it.project }
-          : { kind: 'milestone', key: it.milestone.id, milestone: it.milestone },
-      );
-    }
-    return out;
-  }, []);
+  // 案件と節目を混ぜて新しい順に並べる。
+  const entries = useMemo<Entry[]>(
+    () =>
+      [
+        ...CAREER_PROJECTS.map((p) => ({
+          kind: 'project' as const,
+          key: p.id,
+          sortKey: p.sortKey,
+          project: p,
+        })),
+        ...CAREER_MILESTONES.map((m) => ({
+          kind: 'milestone' as const,
+          key: m.id,
+          sortKey: m.sortKey,
+          milestone: m,
+        })),
+      ].sort((a, b) => b.sortKey.localeCompare(a.sortKey)),
+    [],
+  );
 
   return (
     <PageShell title="経歴" accent={ACCENT}>
       {/* タイムライン */}
-      <ol className="relative">
-        {entries.map((e, i) => {
-          const isFirst = i === 0;
-          const isLast = i === entries.length - 1;
-          if (e.kind === 'year') {
-            return (
-              <YearMarker
-                key={e.key}
-                year={e.year}
-                isFirst={isFirst}
-                isLast={isLast}
-              />
-            );
-          }
-          if (e.kind === 'milestone') {
-            return (
-              <MilestoneItem
-                key={e.key}
-                milestone={e.milestone}
-                isFirst={isFirst}
-                isLast={isLast}
-              />
-            );
-          }
-          return (
-            <TimelineItem
-              key={e.key}
-              project={e.project}
-              isFirst={isFirst}
-              isLast={isLast}
-            />
-          );
-        })}
+      <ol className="space-y-6 sm:space-y-7">
+        {entries.map((e) =>
+          e.kind === 'milestone' ? (
+            <MilestoneItem key={e.key} milestone={e.milestone} />
+          ) : (
+            <TimelineItem key={e.key} project={e.project} />
+          ),
+        )}
       </ol>
     </PageShell>
   );

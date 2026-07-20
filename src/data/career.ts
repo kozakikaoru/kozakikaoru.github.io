@@ -8,8 +8,10 @@ export type ProjectStatus = 'done' | 'ongoing';
 
 export interface CareerProject {
   id: string;
-  /** 期間表示(例: '2025.04 – 2025.09')。 */
-  period: string;
+  /** 開始年月(表示・'YYYY.MM')。タイムラインでは下側に出す(時系列は下→上)。 */
+  start: string;
+  /** 終了年月(表示・'YYYY.MM')。進行中は '現在'。タイムラインでは上側に出す。 */
+  end: string;
   /** ソート用の開始年月(YYYY-MM)。新しい順に並べる。 */
   sortKey: string;
   status: ProjectStatus;
@@ -58,7 +60,8 @@ export const CAREER_MILESTONES: CareerMilestone[] = [
 export const CAREER_PROJECTS: CareerProject[] = [
   {
     id: 'c1',
-    period: '2024.07 – 現在',
+    start: '2024.07',
+    end: '現在',
     sortKey: '2024-07',
     status: 'ongoing',
     title: 'CROプラットフォーム',
@@ -82,7 +85,8 @@ export const CAREER_PROJECTS: CareerProject[] = [
   },
   {
     id: 'c2',
-    period: '2022.08 – 2024.06',
+    start: '2022.08',
+    end: '2024.06',
     sortKey: '2022-08',
     status: 'done',
     title: 'VR体験アプリ',
@@ -97,7 +101,8 @@ export const CAREER_PROJECTS: CareerProject[] = [
   },
   {
     id: 'c3',
-    period: '2022.01 – 2022.06',
+    start: '2022.01',
+    end: '2022.06',
     sortKey: '2022-01',
     status: 'done',
     title: 'クラウド型入退室管理システム開発',
@@ -112,7 +117,8 @@ export const CAREER_PROJECTS: CareerProject[] = [
   },
   {
     id: 'c4',
-    period: '2021.06 – 2021.12',
+    start: '2021.06',
+    end: '2021.12',
     sortKey: '2021-06',
     status: 'done',
     title: 'クラウドファンディングSaaS開発',
@@ -127,7 +133,8 @@ export const CAREER_PROJECTS: CareerProject[] = [
   },
   {
     id: 'c5',
-    period: '2020.01 – 2021.04',
+    start: '2020.01',
+    end: '2021.04',
     sortKey: '2020-01',
     status: 'done',
     title: '自動車フリマアプリ開発',
@@ -143,7 +150,8 @@ export const CAREER_PROJECTS: CareerProject[] = [
   },
   {
     id: 'c6',
-    period: '2018.10 – 2019.06',
+    start: '2018.10',
+    end: '2019.06',
     sortKey: '2018-10',
     status: 'done',
     startup: true,
@@ -158,7 +166,8 @@ export const CAREER_PROJECTS: CareerProject[] = [
   },
   {
     id: 'c7',
-    period: '2017.07 – 2018.08',
+    start: '2017.07',
+    end: '2018.08',
     sortKey: '2017-07',
     status: 'done',
     startup: true,
@@ -174,7 +183,8 @@ export const CAREER_PROJECTS: CareerProject[] = [
   },
   {
     id: 'c8',
-    period: '2016.09 – 2017.05',
+    start: '2016.09',
+    end: '2017.05',
     sortKey: '2016-09',
     status: 'done',
     startup: true,
