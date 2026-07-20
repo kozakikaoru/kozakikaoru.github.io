@@ -9,8 +9,8 @@ import {
   HudCard,
   IconExternal,
   IconGitHub,
-  MonoTag,
 } from '../components/HudKit';
+import { SkillIcon } from '../components/SkillIcon';
 import { WORKS, type Work } from '../data/works';
 
 // ページアクセント(panels.ts の works と同色)。
@@ -31,11 +31,6 @@ export default function Works() {
           <WorkCard key={w.id} work={w} />
         ))}
       </div>
-
-      {/* 背景直置きの注記なので、濃い黒影をスクリム代わりに敷く。 */}
-      <p className="text-hud-shadow mt-6 text-center text-xs text-white/75">
-        ※ サムネイルはGitHubの自動生成画像（仮）です。実際のスクリーンショットに順次差し替え予定です。
-      </p>
     </PageShell>
   );
 }
@@ -89,11 +84,17 @@ function WorkCard({ work }: { work: Work }) {
           {work.note}
         </p>
 
-        {/* タグ(言語=MonoTag / 種別=Chip) */}
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <MonoTag>{work.tags[0]}</MonoTag>
-          <Chip>{work.tags[1]}</Chip>
-        </div>
+        {/* 技術タグ(GitHub の実データ・公式カラーのアイコン付きチップ) */}
+        <ul className="mt-3 flex flex-wrap items-center gap-1.5">
+          {work.tags.map((t) => (
+            <li key={t}>
+              <Chip className="gap-1.5">
+                <SkillIcon name={t} />
+                {t}
+              </Chip>
+            </li>
+          ))}
+        </ul>
 
         {/* リンク(公開ページは GitHub Pages 公開があるものだけ)。
             読み上げ名は <a> の aria-label に置く(SVG 側は aria-hidden)。 */}

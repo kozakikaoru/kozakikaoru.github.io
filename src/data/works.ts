@@ -18,8 +18,9 @@ export interface Work {
   pagesUrl?: string;
   /** GitHub リポジトリ URL。 */
   repoUrl: string;
-  /** [言語, 種別] のタグ。言語は MonoTag(英数)、種別は Chip(和文)で表示。 */
-  tags: [string, string];
+  /** 技術タグ。GitHub の言語統計 + package.json の主要フレームワークから抜き出した実データ。
+      表示は SkillIcon 付きの Chip(種別ラベル「Webアプリ」等はユーザー指示で廃止)。 */
+  tags: string[];
 }
 
 /** GitHub の OG 自動生成画像 URL(1200×600)。 */
@@ -36,7 +37,7 @@ export const WORKS: Work[] = [
     imageUrl: ogImage('anthos'),
     pagesUrl: 'https://kozakikaoru.github.io/anthos/',
     repoUrl: 'https://github.com/kozakikaoru/anthos',
-    tags: ['JavaScript', 'Webアプリ'],
+    tags: ['JavaScript', 'HTML', 'CSS'],
   },
   {
     id: 'corner_cut_reversi_eval',
@@ -46,7 +47,7 @@ export const WORKS: Work[] = [
     imageUrl: ogImage('corner_cut_reversi_eval'),
     pagesUrl: 'https://kozakikaoru.github.io/corner_cut_reversi_eval/',
     repoUrl: 'https://github.com/kozakikaoru/corner_cut_reversi_eval',
-    tags: ['TypeScript', 'シミュレーター'],
+    tags: ['TypeScript', 'Vite', 'CSS'],
   },
   {
     id: 'casino_simulator',
@@ -56,7 +57,7 @@ export const WORKS: Work[] = [
     imageUrl: ogImage('casino_simulator'),
     pagesUrl: 'https://kozakikaoru.github.io/casino_simulator/',
     repoUrl: 'https://github.com/kozakikaoru/casino_simulator',
-    tags: ['TypeScript', 'シミュレーター'],
+    tags: ['TypeScript', 'React', 'Vite', 'CSS'],
   },
   {
     id: 'engineer_tutorial',
@@ -66,7 +67,7 @@ export const WORKS: Work[] = [
     imageUrl: ogImage('engineer_tutorial'),
     pagesUrl: 'https://kozakikaoru.github.io/engineer_tutorial/',
     repoUrl: 'https://github.com/kozakikaoru/engineer_tutorial',
-    tags: ['JavaScript', 'チュートリアル'],
+    tags: ['JavaScript', 'HTML', 'CSS'],
   },
   {
     id: 'claude_code_tutorial',
@@ -76,7 +77,7 @@ export const WORKS: Work[] = [
     imageUrl: ogImage('claude_code_tutorial'),
     pagesUrl: 'https://kozakikaoru.github.io/claude_code_tutorial/',
     repoUrl: 'https://github.com/kozakikaoru/claude_code_tutorial',
-    tags: ['MDX', 'チュートリアル'],
+    tags: ['Astro', 'MDX', 'TypeScript', 'CSS'],
   },
   {
     id: 'career_advisor',
@@ -85,7 +86,7 @@ export const WORKS: Work[] = [
     note: 'TypeScript製のWebアプリ。リポジトリのみ公開。',
     imageUrl: ogImage('career_advisor'),
     repoUrl: 'https://github.com/kozakikaoru/career_advisor',
-    tags: ['TypeScript', 'Webアプリ'],
+    tags: ['TypeScript', 'Next.js', 'React', 'Tailwind CSS'],
   },
   {
     id: 'company',
@@ -94,7 +95,7 @@ export const WORKS: Work[] = [
     note: 'Claude Codeの拡張プラグイン。シェルスクリプト製。',
     imageUrl: ogImage('company'),
     repoUrl: 'https://github.com/kozakikaoru/company',
-    tags: ['Shell', 'プラグイン'],
+    tags: ['Shell'],
   },
   {
     id: 'kozakikaoru.github.io',
@@ -104,6 +105,6 @@ export const WORKS: Work[] = [
     imageUrl: ogImage('kozakikaoru.github.io'),
     pagesUrl: 'https://kozakikaoru.github.io/',
     repoUrl: 'https://github.com/kozakikaoru/kozakikaoru.github.io',
-    tags: ['TypeScript', 'Webサイト'],
+    tags: ['TypeScript', 'React', 'Three.js', 'Tailwind CSS', 'Vite'],
   },
 ];

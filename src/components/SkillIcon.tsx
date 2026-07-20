@@ -7,13 +7,17 @@
 // ブランドロゴではない汎用の形(フラスコ / 雲)を自前で描き、色だけ各ブランドの
 // 定番色(RSpec=Ruby系の赤 / AWS=オレンジ #FF9900)に合わせる。
 import {
+  siAstro,
   siCss,
   siDocker,
   siGit,
   siGithub,
+  siGnubash,
   siHtml5,
   siJavascript,
+  siMdx,
   siMysql,
+  siNextdotjs,
   siReact,
   siRuby,
   siRubyonrails,
@@ -21,6 +25,7 @@ import {
   siTailwindcss,
   siThreedotjs,
   siTypescript,
+  siVite,
   siVuedotjs,
 } from 'simple-icons';
 
@@ -48,6 +53,11 @@ const ICONS: Record<string, IconDef> = {
   Git: { path: siGit.path, color: `#${siGit.hex}` },
   GitHub: { path: siGithub.path, color: WHITE }, // 公式 #181717 は黒で沈む
   Swift: { path: siSwift.path, color: `#${siSwift.hex}` },
+  Vite: { path: siVite.path, color: `#${siVite.hex}` },
+  Astro: { path: siAstro.path, color: `#${siAstro.hex}` },
+  MDX: { path: siMdx.path, color: WHITE }, // 公式 #1B1F24 は黒で沈む
+  'Next.js': { path: siNextdotjs.path, color: WHITE }, // 公式 #000000 は黒で沈む
+  Shell: { path: siGnubash.path, color: `#${siGnubash.hex}` },
   // ---- simple-icons 非収録(汎用の形・ブランドロゴではない)----
   RSpec: {
     // テストを示すフラスコ
