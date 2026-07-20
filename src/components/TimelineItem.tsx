@@ -17,9 +17,10 @@ import { type CareerMilestone, type CareerProject } from '../data/career';
 import { Chip, HudCard, MONO } from './HudKit';
 import { SkillIcon } from './SkillIcon';
 
-/** 年月ラベル行。線上のドット + 日付ピル(+ 節目のタイトル等の後続要素)。
-    日付は背景直置きだと昼の明るい空で読めない(ユーザーFB)ため、
-    小さなダークピルに載せて面を持たせる。 */
+/** 年月ラベル行。線上のドット + 日付(+ 節目のタイトル等の後続要素)。
+    日付は素のテキストのまま(ピルは不採用=ユーザーFB)。昼の明るい空でも
+    読めるよう、白文字に黒の締まったハロー + 弱いアクセント光を重ねる
+    (h1 の「色と黒の影」の小型版)。 */
 function DateRow({ date, children }: { date: string; children?: ReactNode }) {
   return (
     <div className="relative flex flex-wrap items-center gap-x-2.5 gap-y-1">
@@ -34,12 +35,11 @@ function DateRow({ date, children }: { date: string; children?: ReactNode }) {
         }}
       />
       <time
-        className="inline-flex h-7 items-center rounded-md border px-2.5 text-[13px] tracking-[0.14em] tabular-nums backdrop-blur-sm"
+        className="text-[13px] font-bold tracking-[0.14em] tabular-nums text-white/95"
         style={{
           fontFamily: MONO,
-          color: 'var(--page-accent-text)',
-          background: 'rgba(10,21,38,0.72)',
-          borderColor: 'color-mix(in srgb, var(--page-accent) 32%, transparent)',
+          textShadow:
+            '0 0 3px rgba(0,0,0,0.95), 0 0 3px rgba(0,0,0,0.9), 0 1px 8px rgba(0,0,0,0.75), 0 0 14px color-mix(in srgb, var(--page-accent) 45%, transparent)',
         }}
       >
         {date}
