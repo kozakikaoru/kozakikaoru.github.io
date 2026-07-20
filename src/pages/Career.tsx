@@ -42,8 +42,14 @@ export default function Career() {
 
   return (
     <PageShell title="経歴" accent={ACCENT}>
-      {/* タイムライン */}
-      <ol className="space-y-6 sm:space-y-7">
+      {/* タイムライン。1本の連続した縦線(border-l)を全項目が共有する。
+          pl の値は TimelineItem のドット位置(-left-[25px]/sm:-29px)と対。 */}
+      <ol
+        className="ml-1 space-y-6 border-l-2 pl-5 sm:space-y-7 sm:pl-6"
+        style={{
+          borderColor: 'color-mix(in srgb, var(--page-accent) 42%, transparent)',
+        }}
+      >
         {entries.map((e) =>
           e.kind === 'milestone' ? (
             <MilestoneItem key={e.key} milestone={e.milestone} />

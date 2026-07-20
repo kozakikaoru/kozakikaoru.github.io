@@ -17,6 +17,7 @@ import {
   siReact,
   siRuby,
   siRubyonrails,
+  siSwift,
   siTailwindcss,
   siThreedotjs,
   siTypescript,
@@ -46,6 +47,7 @@ const ICONS: Record<string, IconDef> = {
   Docker: { path: siDocker.path, color: `#${siDocker.hex}` },
   Git: { path: siGit.path, color: `#${siGit.hex}` },
   GitHub: { path: siGithub.path, color: WHITE }, // 公式 #181717 は黒で沈む
+  Swift: { path: siSwift.path, color: `#${siSwift.hex}` },
   // ---- simple-icons 非収録(汎用の形・ブランドロゴではない)----
   RSpec: {
     // テストを示すフラスコ
@@ -56,6 +58,11 @@ const ICONS: Record<string, IconDef> = {
     // クラウド(雲)
     path: 'M17.8 18.5H6.7a4.7 4.7 0 0 1-.6-9.4 6.2 6.2 0 0 1 12-1 4.6 4.6 0 0 1-.3 10.4z',
     color: '#FF9900',
+  },
+  Java: {
+    // コーヒーカップ(Java も商標の都合で simple-icons 非収録)
+    path: 'M4 9h13v6.5A5.5 5.5 0 0 1 11.5 21h-2A5.5 5.5 0 0 1 4 15.5V9zm14.5 1.5h.75a3.25 3.25 0 0 1 0 6.5h-1.06c.2-.63.31-1.3.31-2h.75a1.25 1.25 0 0 0 0-2.5h-.75v-2zM7.1 3.6c.9.9.9 1.9 0 2.8L6 7.5c-.4-1.2-.1-2.4 1.1-3.9zm3.9 0c.9.9.9 1.9 0 2.8l-1.1 1.1c-.4-1.2-.1-2.4 1.1-3.9z',
+    color: '#E76F00',
   },
 };
 
