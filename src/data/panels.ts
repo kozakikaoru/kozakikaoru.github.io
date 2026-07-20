@@ -75,8 +75,8 @@ export const PANELS: PanelDef[] = [
   {
     id: 'works',
     to: '/works',
-    label: '開発作品',
-    displayLabel: '開発作品',
+    label: '個人開発',
+    displayLabel: '個人開発',
     sub: 'WORKS',
     description: '開発した作品たち',
     position: [0, 0.75, 0],

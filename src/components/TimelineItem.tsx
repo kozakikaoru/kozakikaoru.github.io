@@ -49,7 +49,12 @@ export function MilestoneItem({ milestone }: { milestone: CareerMilestone }) {
   return (
     <li>
       <DateRow date={milestone.date}>
-        <span className="text-hud-shadow text-[13px] text-white/90">
+        {/* タイトルは小さなパネルに載せる(背景と被って読みにくいため面を持たせる)。
+            日付は案件と同じく枠の外・線の上。 */}
+        <span
+          className="inline-flex h-8 items-center rounded-lg border border-white/12 px-3 text-[13px] text-white/90 backdrop-blur-sm"
+          style={{ background: 'rgba(10,21,38,0.72)' }}
+        >
           {milestone.title}
         </span>
       </DateRow>

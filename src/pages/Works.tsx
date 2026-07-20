@@ -25,7 +25,7 @@ const ICON_LINK_CLASS =
 
 export default function Works() {
   return (
-    <PageShell title="開発作品" accent={ACCENT}>
+    <PageShell title="個人開発" accent={ACCENT}>
       <div className="grid gap-6 sm:grid-cols-2">
         {WORKS.map((w) => (
           <WorkCard key={w.id} work={w} />
