@@ -3,24 +3,31 @@
 // 開始年月(下)と終了年月(上)を持つ(年マーカーはユーザー指示で廃止)。
 import { useMemo } from 'react';
 import { PageShell } from '../components/PageShell';
-import { MilestoneItem, TimelineItem } from '../components/TimelineItem';
+import {
+  MilestoneItem,
+  SchoolItem,
+  TimelineItem,
+} from '../components/TimelineItem';
 import {
   CAREER_MILESTONES,
   CAREER_PROJECTS,
+  CAREER_SCHOOLS,
   type CareerMilestone,
   type CareerProject,
+  type CareerSchool,
 } from '../data/career';
 
 // ページアクセント(panels.ts の career と同色)。
 const ACCENT = '#ff9e2c';
 
-// タイムラインの1エントリ(案件 / 節目)。
+// タイムラインの1エントリ(案件 / 節目 / 学校)。
 type Entry =
   | { kind: 'project'; key: string; project: CareerProject }
-  | { kind: 'milestone'; key: string; milestone: CareerMilestone };
+  | { kind: 'milestone'; key: string; milestone: CareerMilestone }
+  | { kind: 'school'; key: string; school: CareerSchool };
 
 export default function Career() {
-  // 案件と節目を混ぜて新しい順に並べる。
+  // 案件・節目・学校を混ぜて新しい順に並べる。
   const entries = useMemo<Entry[]>(
     () =>
       [
@@ -36,6 +43,12 @@ export default function Career() {
           sortKey: m.sortKey,
           milestone: m,
         })),
+        ...CAREER_SCHOOLS.map((s) => ({
+          kind: 'school' as const,
+          key: s.id,
+          sortKey: s.sortKey,
+          school: s,
+        })),
       ].sort((a, b) => b.sortKey.localeCompare(a.sortKey)),
     [],
   );
@@ -50,13 +63,15 @@ export default function Career() {
           borderColor: 'color-mix(in srgb, var(--page-accent) 42%, transparent)',
         }}
       >
-        {entries.map((e) =>
-          e.kind === 'milestone' ? (
-            <MilestoneItem key={e.key} milestone={e.milestone} />
-          ) : (
-            <TimelineItem key={e.key} project={e.project} />
-          ),
-        )}
+        {entries.map((e) => {
+          if (e.kind === 'milestone') {
+            return <MilestoneItem key={e.key} milestone={e.milestone} />;
+          }
+          if (e.kind === 'school') {
+            return <SchoolItem key={e.key} school={e.school} />;
+          }
+          return <TimelineItem key={e.key} project={e.project} />;
+        })}
       </ol>
     </PageShell>
   );

@@ -29,32 +29,90 @@ export interface CareerProject {
   outcome?: string;
 }
 
-/** 節目(入学・入社・独立など)。詳細を持たない1行の目印としてタイムラインに混ぜる。 */
+/** 節目(入社・独立など)。単発の出来事としてタイムラインに混ぜる。 */
 export interface CareerMilestone {
   id: string;
   /** 表示日付('YYYY.MM')。 */
   date: string;
   /** ソート用の年月(YYYY-MM)。案件と混ぜて新しい順に並べる。 */
   sortKey: string;
-  /** 節目のタイトル(1行・詳細なし)。 */
+  /** 節目のタイトル。 */
   title: string;
+  /** ひとことコメント(箇条書き)。あると軽めのパネル表示になる。 */
+  notes?: string[];
+}
+
+/** 学校(在学期間を持つ)。案件と同じく上=卒業/下=入学の年月で挟み、
+    案件カードより軽めのパネルで表示する。 */
+export interface CareerSchool {
+  id: string;
+  /** 入学年月('YYYY.MM')。タイムラインでは下側。 */
+  start: string;
+  /** 卒業年月('YYYY.MM')。タイムラインでは上側。 */
+  end: string;
+  /** ソート用の年月(YYYY-MM・入学基準)。 */
+  sortKey: string;
+  /** 学校名(正式名称)。 */
+  title: string;
+  /** 学科(名前の横に小さく出す)。 */
+  sub: string;
+  /** ひとことコメント(箇条書き)。 */
+  notes: string[];
 }
 
 // 学校名・会社名は掲載OK(2026-07-16 ユーザー承認)。
 //   会社名 = フロイデ株式会社(スキルシート由来)
 //   学校名 = KCS北九州情報専門学校(正式名称・Web確認済 https://www.kcs.ac.jp/kitakyushu/)
-//   高校は卒業のみ(入学は載せない)。専門は入学・卒業の両方を載せる。
-//   「◯◯ 卒業/入学」は助詞「を」を入れずスペース区切り(ユーザー指示)。
-//   高校名 = 福岡県立筑豊高等学校(正式名称・Web確認済 https://chikuho.fku.ed.jp/)。
-// ★確認待ち(仮置き): 高校卒業 2014.03 / 専門入学 2014.04(2年制と仮定し卒業2016.03から
-//   逆算)/ 開業 2021.05。訂正が来たらここを直す。
+//          = 福岡県立筑豊高等学校(正式名称・Web確認済 https://chikuho.fku.ed.jp/)
+//   学校は「入学・卒業」の行を廃止し、在学期間つきの軽めパネル(CareerSchool)で表示。
+// ★確認待ち(仮置き): 高校入学 2011.04(3年制と仮定し卒業2014.03から逆算)/
+//   専門入学 2014.04(2年制と仮定)/ 開業 2021.05。訂正が来たらここを直す。
 export const CAREER_MILESTONES: CareerMilestone[] = [
   { id: 'm-freelance', date: '2021.05', sortKey: '2021-05', title: '個人事業主として開業' },
   { id: 'm-leave', date: '2021.04', sortKey: '2021-04', title: 'フロイデ株式会社を退社' },
-  { id: 'm-join', date: '2016.04', sortKey: '2016-04', title: 'フロイデ株式会社に入社' },
-  { id: 'm-college-grad', date: '2016.03', sortKey: '2016-03', title: 'KCS北九州情報専門学校 卒業' },
-  { id: 'm-college-enroll', date: '2014.04', sortKey: '2014-04', title: 'KCS北九州情報専門学校 入学' },
-  { id: 'm-highschool-grad', date: '2014.03', sortKey: '2014-03', title: '福岡県立筑豊高等学校 卒業' },
+  {
+    id: 'm-join',
+    date: '2016.04',
+    sortKey: '2016-04',
+    title: 'フロイデ株式会社 入社',
+    notes: [
+      '新人研修でプログラムの面白さを理解する。',
+      'ポーカーAIを作成する研修で、同期内優勝。',
+      '研修後、最初の案件でRubyに出会い、プログラミングが楽しくなる。',
+    ],
+  },
+];
+
+export const CAREER_SCHOOLS: CareerSchool[] = [
+  {
+    id: 's-kcs',
+    start: '2014.04',
+    end: '2016.03',
+    sortKey: '2014-04',
+    title: 'KCS北九州情報専門学校',
+    sub: 'プログラマ科',
+    notes: [
+      'ネットサーフィンが好きだったので、なんとなく情報系の学校を選択。',
+      'パソコン触れそうだったので、なんとなくプログラマ科を専攻。',
+      '基本情報技術者試験のために勉強をし、無事合格。',
+      'MOSの対象試験にすべて合格し、MOS Expert認定を取得。',
+      'JavaやCに軽く触れたが、国家資格の勉強が8割だったので、特にプログラミングの面白さは理解できずに卒業。',
+    ],
+  },
+  {
+    id: 's-chikuho',
+    start: '2011.04',
+    end: '2014.03',
+    sortKey: '2011-04',
+    title: '福岡県立筑豊高等学校',
+    sub: 'ビジネス情報科',
+    notes: [
+      '人生のピーク。',
+      '図書副委員長。',
+      '図書室に自分の寄贈した漫画のコーナーを作成、卒業後10年以上経った今も受け継がれている。',
+      '面接練習が億劫で進学を決意。',
+    ],
+  },
 ];
 
 export const CAREER_PROJECTS: CareerProject[] = [

@@ -13,7 +13,11 @@
 //   -left-[25px](sm:-29px)に置く(= border 2px + padding 20/24px から逆算)。
 //   ol の padding を変えるならドットの位置も合わせて直すこと。
 import type { ReactNode } from 'react';
-import { type CareerMilestone, type CareerProject } from '../data/career';
+import {
+  type CareerMilestone,
+  type CareerProject,
+  type CareerSchool,
+} from '../data/career';
 import { Chip, HudCard, MONO } from './HudKit';
 import { SkillIcon } from './SkillIcon';
 
@@ -49,10 +53,58 @@ function DateRow({ date, children }: { date: string; children?: ReactNode }) {
   );
 }
 
+/**
+ * 軽めのパネル(学校・コメント付きの節目用)。
+ * 案件カード(HudCard)より一段控えめ: 角丸小さめ・余白小さめ・アクセントの
+ * ヘアラインなし。地色は可読性の下限 0.72 を守る。
+ */
+function NotePanel({
+  title,
+  sub,
+  notes,
+}: {
+  title: string;
+  sub?: string;
+  notes: string[];
+}) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-[#0a1526]/72 p-4 backdrop-blur-md">
+      <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+        <h2 className="text-[15px] font-bold leading-[1.5] text-white">{title}</h2>
+        {sub && <span className="text-xs text-white/75">{sub}</span>}
+      </div>
+      <ul className="mt-2 space-y-1 text-[13px] leading-[1.7] text-white/80">
+        {notes.map((n) => (
+          <li key={n} className="relative pl-3.5">
+            <span
+              aria-hidden="true"
+              className="absolute left-0 top-[0.6em] h-[3px] w-[3px] rounded-[0.5px]"
+              style={{
+                background: 'color-mix(in srgb, var(--page-accent) 55%, transparent)',
+              }}
+            />
+            {n}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 // ------------------------------------------------------------------
-// 節目: 線外の日付 + タイトル(案件の年月ラベルとデザインを揃える)
+// 節目: 線外の日付 + タイトル。notes があれば軽めパネル、無ければ1行チップ
 // ------------------------------------------------------------------
 export function MilestoneItem({ milestone }: { milestone: CareerMilestone }) {
+  if (milestone.notes) {
+    return (
+      <li>
+        <DateRow date={milestone.date} />
+        <div className="my-2.5">
+          <NotePanel title={milestone.title} notes={milestone.notes} />
+        </div>
+      </li>
+    );
+  }
   return (
     <li>
       <DateRow date={milestone.date}>
@@ -65,6 +117,21 @@ export function MilestoneItem({ milestone }: { milestone: CareerMilestone }) {
           {milestone.title}
         </span>
       </DateRow>
+    </li>
+  );
+}
+
+// ------------------------------------------------------------------
+// 学校: 卒業年月(上)→ 軽めパネル(校名+学科+コメント)→ 入学年月(下)
+// ------------------------------------------------------------------
+export function SchoolItem({ school }: { school: CareerSchool }) {
+  return (
+    <li>
+      <DateRow date={school.end} />
+      <div className="my-2.5">
+        <NotePanel title={school.title} sub={school.sub} notes={school.notes} />
+      </div>
+      <DateRow date={school.start} />
     </li>
   );
 }
