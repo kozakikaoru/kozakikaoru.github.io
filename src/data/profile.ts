@@ -70,7 +70,7 @@ export const PROFILE: Profile = {
     },
   ],
   facts: [
-    { label: '拠点', value: '福岡県の田舎の方' },
+    { label: '拠点', value: '福岡県' },
     { label: '生年月日', value: '1995年12月3日' },
   ],
 };
