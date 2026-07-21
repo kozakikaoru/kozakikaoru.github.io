@@ -64,6 +64,10 @@ export const PROFILE: Profile = {
       category: 'ツール・インフラ',
       items: ['AWS', 'MySQL', 'Docker', 'Git', 'GitHub'],
     },
+    {
+      category: '資格',
+      items: ['基本情報技術者試験'],
+    },
   ],
   facts: [
     { label: '拠点', value: '福岡県の田舎の方' },
