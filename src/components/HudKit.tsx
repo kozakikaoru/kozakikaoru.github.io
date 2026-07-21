@@ -207,11 +207,11 @@ export function IconExternal() {
 }
 
 /** GitHub のマーク(Octicons の mark-github-16 相当)。 */
-export function IconGitHub() {
+export function IconGitHub({ className = 'h-[18px] w-[18px]' }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 16 16"
-      className="h-[18px] w-[18px]"
+      className={className}
       fill="currentColor"
       aria-hidden="true"
       focusable="false"
@@ -222,11 +222,11 @@ export function IconGitHub() {
 }
 
 /** X(旧Twitter)のロゴ。x.com のブランドマークを単一パスで再現。 */
-export function IconX() {
+export function IconX({ className = 'h-4 w-4' }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="h-4 w-4"
+      className={className}
       fill="currentColor"
       aria-hidden="true"
       focusable="false"

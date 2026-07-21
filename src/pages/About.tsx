@@ -62,8 +62,9 @@ export default function About() {
               ))}
             </dl>
 
-            {/* SNS(基本情報のまとまりの一番下) */}
-            <div className="mt-4 flex flex-col gap-2 border-t border-white/[0.08] pt-4">
+            {/* SNS(基本情報のまとまりの一番下)。ハンドル名は出さずアイコンのみ
+                (ユーザー指示)。アイコンだけになるので aria-label でリンク名を担保。 */}
+            <div className="mt-4 flex gap-2 border-t border-white/[0.08] pt-4">
               {PROFILE.socials.map((s) => (
                 <a
                   key={s.label}
@@ -71,11 +72,13 @@ export default function About() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${s.label} ${s.handle}`}
-                  className="inline-flex h-11 items-center gap-2.5 rounded-lg border border-white/20 bg-white/[0.06] px-4 text-[13px] text-white/85 transition-opacity hover:opacity-80"
-                  style={{ fontFamily: MONO }}
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/20 bg-white/[0.06] text-white/85 transition-opacity hover:opacity-80"
                 >
-                  {s.label === 'GitHub' ? <IconGitHub /> : <IconX />}
-                  {s.handle}
+                  {s.label === 'GitHub' ? (
+                    <IconGitHub className="h-6 w-6" />
+                  ) : (
+                    <IconX className="h-[22px] w-[22px]" />
+                  )}
                 </a>
               ))}
             </div>
