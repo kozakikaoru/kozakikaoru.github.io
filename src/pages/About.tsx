@@ -99,9 +99,12 @@ export default function About() {
           <h2 className="mt-1 text-2xl font-bold">{PROFILE.name}</h2>
           <p className="mt-1 text-sm text-white/75">{PROFILE.role}</p>
 
+          {/* 段落間は space-y-4、段落内の句点改行(\n)は whitespace-pre-line で反映。 */}
           <div className="mt-6 space-y-4 leading-relaxed text-white/90">
             {PROFILE.bio.map((para, i) => (
-              <p key={i}>{para}</p>
+              <p key={i} className="whitespace-pre-line">
+                {para}
+              </p>
             ))}
           </div>
 
