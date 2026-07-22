@@ -52,8 +52,23 @@ export default function About() {
           </div>
 
           <div className="px-4 pb-4">
+            {/* 名前(写真の下)。ユーザー指示で右パネルからここへ移動。
+                英字名は HUD の計器ラベル風(等幅+広字間+文字用アクセント色)。 */}
+            <div className="border-b border-white/[0.08] pb-4 pt-1">
+              <p
+                className="text-xs font-semibold tracking-[0.3em]"
+                style={{ fontFamily: MONO, color: 'var(--page-accent-text)' }}
+              >
+                {PROFILE.nameEn}
+              </p>
+              <h2 className="mt-1 text-2xl font-bold text-white">
+                {PROFILE.name}
+              </h2>
+              <p className="mt-1 text-sm text-white/75">{PROFILE.role}</p>
+            </div>
+
             {/* 基本情報 */}
-            <dl className="space-y-2 pt-1 text-sm text-white/90">
+            <dl className="mt-4 space-y-2 text-sm text-white/90">
               {PROFILE.facts.map((f) => (
                 <div key={f.label} className="flex justify-between gap-3">
                   <dt className="shrink-0 text-white/75">{f.label}</dt>
@@ -88,19 +103,9 @@ export default function About() {
 
         {/* ==== 右: 名前 + 自己紹介 + スキル(1枚のパネルに集約)==== */}
         <HudCard className="text-white sm:p-8">
-          {/* 英字名は HUD の計器ラベル風(等幅+広字間+アクセント色)。
-              生アクセントは暗いカードの上で 1.8:1 しか出ないため文字用の明るい版を使う。 */}
-          <p
-            className="text-xs font-semibold tracking-[0.3em]"
-            style={{ fontFamily: MONO, color: 'var(--page-accent-text)' }}
-          >
-            {PROFILE.nameEn}
-          </p>
-          <h2 className="mt-1 text-2xl font-bold">{PROFILE.name}</h2>
-          <p className="mt-1 text-sm text-white/75">{PROFILE.role}</p>
-
-          {/* 段落間は space-y-4、段落内の句点改行(\n)は whitespace-pre-line で反映。 */}
-          <div className="mt-6 space-y-4 leading-relaxed text-white/90">
+          {/* 名前ブロックは左パネル(写真の下)へ移動済み。ここは自己紹介本文から始める。
+              段落間は space-y-4、段落内の句点改行(\n)は whitespace-pre-line で反映。 */}
+          <div className="space-y-4 leading-relaxed text-white/90">
             {PROFILE.bio.map((para, i) => (
               <p key={i} className="whitespace-pre-line">
                 {para}
