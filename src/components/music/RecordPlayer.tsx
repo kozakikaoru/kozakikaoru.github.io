@@ -1,15 +1,15 @@
-// 音楽プレイヤー(PC は 2 カラム構成)。
-//   - 左: 枠なし・列いっぱいの正方形アート(静止)+ 曲名/制作日 + フルwシークバー
+// 音楽プレイヤーの UI(PC は 2 カラム構成)。
+//   - 左: 枠なし・列いっぱいの正方形アート(静止)+ 曲名/制作日 + フル幅シークバー
 //         (下に現在/総時間)+ 枠なしの操作ボタン(前/再生/次)
-//   - 右: 曲リスト(枠いっぱい・スクロール)。各行 = アイコン + 曲名 + 再生時間。
-//         行をクリックするとその曲を再生。アイコンは通常は正方形、選択中は丸、再生中は回転。
+//   - 右: 曲リスト(枠いっぱい・スクロール)。行クリックでその曲を再生。
 //   - 下: 選択中の曲の歌詞(常時表示)
-// <audio> は 1 個・曲切替は src 差し替え。
-import { useEffect, useRef, useState } from 'react';
-import type { ChangeEvent } from 'react';
+// ★再生状態(曲・再生中・位置)は useAppStore が持ち、<audio> 本体は App 直下の
+//   GlobalAudioPlayer が持つ。このコンポーネントはストアを読み書きするだけなので、
+//   別ページへ遷移して UI が unmount されても再生は途切れない。
 import { HudCard, MONO, NeonLink, SectionHeading } from '../HudKit';
 import { TRACKS } from '../../data/tracks';
 import type { Track } from '../../data/tracks';
+import { useAppStore } from '../../store/useAppStore';
 
 /** 秒を M:SS 表記にする(NaN / Infinity / 負値は 0:00 扱い)。 */
 function formatTime(sec: number): string {
@@ -61,89 +61,18 @@ function IconPause() {
 }
 
 export function RecordPlayer() {
-  const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  // 曲切替後に自動再生する要求フラグ(src 差し替えの後に再生するため一拍おく)。
-  const [pendingPlay, setPendingPlay] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const index = useAppStore((s) => s.trackIndex);
+  const playing = useAppStore((s) => s.isPlaying);
+  const currentTime = useAppStore((s) => s.currentTime);
+  const duration = useAppStore((s) => s.duration);
+  const playIndex = useAppStore((s) => s.playIndex);
+  const togglePlay = useAppStore((s) => s.togglePlay);
+  const nextTrack = useAppStore((s) => s.nextTrack);
+  const prevTrack = useAppStore((s) => s.prevTrack);
+  const seek = useAppStore((s) => s.seek);
 
   const track = TRACKS[index];
   const stanzas = track.lyrics ? splitStanzas(track.lyrics) : [];
-
-  // アンマウント時に再生を止める(ページ遷移後に音だけ残るのを防ぐ)。
-  useEffect(() => {
-    const audio = audioRef.current;
-    return () => audio?.pause();
-  }, []);
-
-  // 曲切替(index 変更)後、pendingPlay が立っていれば新しい src を再生する。
-  //   src は再生成後に <audio> へ反映されるので、描画後のこの effect で play() する。
-  useEffect(() => {
-    if (!pendingPlay) return;
-    setPendingPlay(false);
-    const audio = audioRef.current;
-    if (!audio) return;
-    setPlaying(true);
-    audio.play().catch(() => setPlaying(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index, pendingPlay]);
-
-  /**
-   * 曲を切り替える(前後ボタン/リストクリック共通・ループ)。
-   * autoPlay=true なら切替後に自動再生する。
-   */
-  const changeTrack = (next: number, autoPlay: boolean) => {
-    const normalized = ((next % TRACKS.length) + TRACKS.length) % TRACKS.length;
-    if (normalized === index) return;
-    audioRef.current?.pause();
-    setPlaying(false);
-    setCurrentTime(0);
-    setDuration(0);
-    setIndex(normalized);
-    if (autoPlay) setPendingPlay(true);
-  };
-
-  /** 再生/一時停止。play() の失敗(自動再生制限等)は catch して状態を戻す。 */
-  const togglePlay = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (playing) {
-      audio.pause();
-      setPlaying(false);
-      return;
-    }
-    setPlaying(true);
-    audio.play().catch(() => setPlaying(false));
-  };
-
-  /** リスト行クリック: 同じ曲なら再生/一時停止、別の曲なら選択して即再生。 */
-  const onTrackClick = (i: number) => {
-    if (i === index) {
-      togglePlay();
-      return;
-    }
-    changeTrack(i, true);
-  };
-
-  /** 再生終了: 次の曲へ進めてそのまま再生(連続再生・末尾まで行ったら先頭へループ)。
-      ended イベント起点の play() はユーザー操作済みの <audio> なので自動再生制限に
-      掛からない(万一失敗しても pendingPlay 側の catch で停止状態に戻る)。 */
-  const handleEnded = () => {
-    setPlaying(false);
-    changeTrack(index + 1, true);
-  };
-
-  /** シークバー操作。 */
-  const handleSeek = (e: ChangeEvent<HTMLInputElement>) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const t = Number(e.target.value);
-    audio.currentTime = t;
-    setCurrentTime(t);
-  };
-
   const seekMax = duration > 0 ? duration : 1;
 
   /** プレイリスト行の再生時間ラベル(durationLabel 優先・現在曲は実測・不明は '-:--')。 */
@@ -213,7 +142,7 @@ export function RecordPlayer() {
                   max={seekMax}
                   step={0.1}
                   value={Math.min(currentTime, seekMax)}
-                  onChange={handleSeek}
+                  onChange={(e) => seek(Number(e.target.value))}
                   aria-label="再生位置"
                   className="block w-full cursor-pointer"
                   style={{ accentColor: 'var(--page-accent, #05d9e8)' }}
@@ -231,7 +160,7 @@ export function RecordPlayer() {
               <div className="flex items-center gap-6">
                 <button
                   type="button"
-                  onClick={() => changeTrack(index - 1, playing)}
+                  onClick={() => prevTrack()}
                   aria-label="前の曲"
                   className="p-1 text-white/70 transition-colors hover:text-white"
                 >
@@ -252,7 +181,7 @@ export function RecordPlayer() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => changeTrack(index + 1, playing)}
+                  onClick={() => nextTrack()}
                   aria-label="次の曲"
                   className="p-1 text-white/70 transition-colors hover:text-white"
                 >
@@ -272,16 +201,6 @@ export function RecordPlayer() {
                 </NeonLink>
               )}
             </div>
-
-            {/* オーディオ本体(1 個だけ。曲切替は src 差し替え) */}
-            <audio
-              ref={audioRef}
-              src={track.src}
-              preload="none"
-              onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-              onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-              onEnded={handleEnded}
-            />
           </div>
 
           {/* ==== 右: 曲リスト(枠いっぱい・スクロール)====
@@ -299,7 +218,7 @@ export function RecordPlayer() {
                   <li key={t.id}>
                     <button
                       type="button"
-                      onClick={() => onTrackClick(i)}
+                      onClick={() => playIndex(i)}
                       aria-current={active ? 'true' : undefined}
                       className={`flex w-full items-center gap-3 border-l-2 px-4 py-3.5 text-left transition-colors ${
                         active

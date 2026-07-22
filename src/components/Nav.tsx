@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { NavLink, Link } from 'react-router';
 import { NAV_PANELS } from '../data/panels';
 import { TimeSwitcher } from './TimeSwitcher';
+import { SoundToggle } from './SoundToggle';
 
 export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -52,37 +53,41 @@ export function Nav() {
           ))}
         </nav>
 
-        {/* 時間帯スイッチャー(PC・画面右端)。 */}
-        <div className="hidden lg:block">
+        {/* PC(lg+)右端: サウンドボタン + 時間帯スイッチャー。 */}
+        <div className="hidden items-center gap-2.5 lg:flex">
+          <SoundToggle />
           <TimeSwitcher />
         </div>
 
-        {/* ハンバーガー(スマホのみ・右端)。ページリンク + 時間帯スイッチャーを開閉。 */}
-        <button
-          type="button"
-          className="glass-dark inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 lg:hidden"
-          aria-label={menuOpen ? 'メニューを閉じる' : 'メニューを開く'}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-menu"
-          onClick={() => setMenuOpen((o) => !o)}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            aria-hidden="true"
+        {/* スマホ(lg 未満)右端: サウンドボタン + ハンバーガー。 */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <SoundToggle />
+          <button
+            type="button"
+            className="glass-dark inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15"
+            aria-label={menuOpen ? 'メニューを閉じる' : 'メニューを開く'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            onClick={() => setMenuOpen((o) => !o)}
           >
-            {menuOpen ? (
-              <path d="M6 6l12 12M18 6L6 18" />
-            ) : (
-              <path d="M4 7h16M4 12h16M4 17h16" />
-            )}
-          </svg>
-        </button>
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              {menuOpen ? (
+                <path d="M6 6l12 12M18 6L6 18" />
+              ) : (
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* スマホ展開メニュー(ページリンク + 時間帯スイッチャー)。開いている時だけ描画。 */}

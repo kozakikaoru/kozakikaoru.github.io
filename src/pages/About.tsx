@@ -76,9 +76,9 @@ export default function About() {
                   className="inline-flex h-11 w-11 shrink-0 items-center justify-center text-white/85 transition-opacity hover:opacity-70"
                 >
                   {s.label === 'GitHub' ? (
-                    <IconGitHub className="h-7 w-7" />
+                    <IconGitHub className="h-8 w-8" />
                   ) : (
-                    <IconX className="h-[26px] w-[26px]" />
+                    <IconX className="h-[30px] w-[30px]" />
                   )}
                 </a>
               ))}

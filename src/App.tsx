@@ -9,11 +9,14 @@ import { TimeBackground } from './components/TimeBackground';
 import { LoadingScreen } from './components/LoadingScreen';
 import { Nav } from './components/Nav';
 import { Footer } from './components/Footer';
+import { GlobalAudioPlayer } from './components/music/GlobalAudioPlayer';
 import { usePreloadImages } from './hooks/usePreloadImages';
 import { useAppStore } from './store/useAppStore';
 
-// TOP は初回に必ず要るので同期 import。下層は遅延ロードで初期バンドルを軽く。
-import Home from './pages/Home';
+// 全ページ遅延ロードで初期バンドルを軽く保つ。特に TOP(Home)は WebGL/Three.js を
+// 抱えて重いため、遅延ロードにしておくと下層ページに直接来た人は 3D 一式を
+// ダウンロードせずに済む(TOP を開いたときだけそのチャンクが読まれる)。
+const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
 const Music = lazy(() => import('./pages/Music'));
 const Works = lazy(() => import('./pages/Works'));
@@ -51,6 +54,9 @@ export default function App() {
     <>
       {/* 背景(全ページ共通・最背面) */}
       <TimeBackground />
+
+      {/* 音楽の本体(全ページ横断で継続再生・ルート遷移で unmount されない位置に常設) */}
+      <GlobalAudioPlayer />
 
       {/* ヘッダー */}
       <Nav />
