@@ -51,10 +51,10 @@ export default function About() {
             )}
           </div>
 
+          {/* 並び順(ユーザー指示): 名前 → 肩書き → SNS → 拠点 → 生年月日 */}
           <div className="px-4 pb-4">
-            {/* 名前(写真の下)。ユーザー指示で右パネルからここへ移動。
-                英字名は HUD の計器ラベル風(等幅+広字間+文字用アクセント色)。 */}
-            <div className="border-b border-white/[0.08] pb-4 pt-1">
+            {/* 名前 + 肩書き(写真の下)。英字名は HUD の計器ラベル風(等幅+広字間+文字用アクセント色)。 */}
+            <div className="pt-1">
               <p
                 className="text-xs font-semibold tracking-[0.3em]"
                 style={{ fontFamily: MONO, color: 'var(--page-accent-text)' }}
@@ -67,20 +67,10 @@ export default function About() {
               <p className="mt-1 text-sm text-white/75">{PROFILE.role}</p>
             </div>
 
-            {/* 基本情報 */}
-            <dl className="mt-4 space-y-2 text-sm text-white/90">
-              {PROFILE.facts.map((f) => (
-                <div key={f.label} className="flex justify-between gap-3">
-                  <dt className="shrink-0 text-white/75">{f.label}</dt>
-                  <dd className="text-right">{f.value}</dd>
-                </div>
-              ))}
-            </dl>
-
-            {/* SNS(基本情報のまとまりの一番下)。枠なしでアイコンをベタ置き
-                (ユーザー指示)。見た目は枠なしだがタップ領域 44px は確保する。
+            {/* SNS(肩書きの下)。枠なしでアイコンをベタ置き(ユーザー指示)。
+                見た目は枠なしだがタップ領域 44px は確保する。
                 アイコンだけになるので aria-label でリンク名を担保。 */}
-            <div className="-ml-2 mt-3 flex gap-1 border-t border-white/[0.08] pt-3">
+            <div className="-ml-2 mt-3 flex gap-1">
               {PROFILE.socials.map((s) => (
                 <a
                   key={s.label}
@@ -98,6 +88,16 @@ export default function About() {
                 </a>
               ))}
             </div>
+
+            {/* 基本情報(拠点・生年月日)。SNS の下・罫線で区切る。 */}
+            <dl className="mt-4 space-y-2 border-t border-white/[0.08] pt-4 text-sm text-white/90">
+              {PROFILE.facts.map((f) => (
+                <div key={f.label} className="flex justify-between gap-3">
+                  <dt className="shrink-0 text-white/75">{f.label}</dt>
+                  <dd className="text-right">{f.value}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </HudCard>
 
