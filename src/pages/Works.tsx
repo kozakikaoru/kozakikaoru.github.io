@@ -39,22 +39,30 @@ export default function Works() {
 function WorkCard({ work, index }: { work: Work; index: number }) {
   // OG 画像の取得に失敗したらグラデーションのフォールバックへ切り替える。
   const [imgFailed, setImgFailed] = useState(false);
-  // 拡大の原点を列の外側に固定し、画面端へはみ出さないようにする(2 カラム時)。
-  // 左列(偶数 index)は左端を固定して内側=右へ、右列は右端を固定して内側=左へ伸びる。
+  // ポップの原点を列の外側の下角に固定し、画面端へはみ出さないようにする(2 カラム時)。
+  // 左列(偶数 index)は左下を固定して内側+上へ、右列は右下を固定して内側+上へ伸びる。
   // SP は 1 カラム & hover 無しなので影響しない。
-  const originClass = index % 2 === 0 ? 'sm:origin-left' : 'sm:origin-right';
+  const originClass =
+    index % 2 === 0 ? 'sm:origin-bottom-left' : 'sm:origin-bottom-right';
 
   return (
     <HudCard
       pad={false}
-      // ホバー時は「画像だけ拡大」だと overflow-hidden の枠内で端が見切れる(ユーザーFB)。
-      // 代わりにカードごと拡大し、前面(z)へ持ち上げて影で浮かせる。画像は枠と一緒に
-      // 等倍で大きくなるので見切れない。hover が無い SP と reduced-motion では無効。
-      className={`group relative z-0 flex flex-col transition-[transform,box-shadow] duration-300 ease-out ${originClass} sm:hover:z-30 sm:motion-safe:hover:scale-[1.4] sm:motion-safe:hover:shadow-[0_24px_60px_-12px_rgba(0,0,0,0.65)]`}
+      clip={false}
+      // ホバーは「カードごと拡大」だと文字・リンクまで大きくなる(ユーザーFB)。
+      // 文字は等倍のまま、画像だけをカードの枠外へぬるっとポップさせる方式に変更。
+      // clip=false で HudCard の切り抜きを外し、角丸は画像ラッパー側で面取りする。
+      className="group relative flex flex-col"
     >
-      {/* サムネイル(GitHub OG 画像は 1200×600 = 2:1)。
+      {/* サムネイル。素材は 2:1(GitHub OG / 自作 WebP)だが枠は 16:9 に縦伸ばし
+          (ユーザー指示)。あふれる分は object-position(既定 left)で右側を切る。
+          ホバーで画像だけが 1.3 倍にポップ(下角原点なので上+内側へ伸び、自分の
+          カードの文字は隠さない)。z-10 でポップ中も隣のカードの上に出る。
+          SP / reduced-motion では無効。
           暗スクリムは掛けず、内側のヘアラインで額装して画像を主役にする。 */}
-      <div className="relative aspect-[2/1] w-full overflow-hidden">
+      <div
+        className={`relative z-10 aspect-video w-full overflow-hidden rounded-t-2xl transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${originClass} sm:motion-safe:group-hover:scale-[1.3] sm:group-hover:shadow-[0_18px_50px_-10px_rgba(0,0,0,0.7)]`}
+      >
         {imgFailed ? (
           <div
             className="h-full w-full"
@@ -70,8 +78,9 @@ function WorkCard({ work, index }: { work: Work; index: number }) {
             alt={`${work.title}のサムネイル`}
             loading="lazy"
             onError={() => setImgFailed(true)}
-            // 拡大はカード側(HudCard)で行う。画像を単独でズームすると overflow-hidden の
-            // 枠内で端が見切れるため、ここでは等倍のまま置く。
+            // 16:9 枠に 2:1 素材を cover で入れるため左右どちらかが切れる。
+            // 大事な要素は左寄りに多い(OG のリポジトリ名等)ので既定は左を残す。
+            style={{ objectPosition: work.imagePos ?? 'left center' }}
             className="h-full w-full object-cover"
           />
         )}

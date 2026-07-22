@@ -17,6 +17,9 @@ export interface Work {
   note: string;
   /** サムネイル画像。GitHub の OG 自動生成画像(仮)。 */
   imageUrl: string;
+  /** サムネイルの切り出し位置(CSS object-position)。2:1 素材を 16:9 枠で
+      使うため左右が切れる。未指定は 'left center'(OG のリポジトリ名を守る)。 */
+  imagePos?: string;
   /** GitHub Pages の公開 URL。無いものはリポジトリのみ公開。 */
   pagesUrl?: string;
   /** GitHub リポジトリ URL。 */
@@ -109,6 +112,8 @@ export const WORKS: Work[] = [
     // トップページの天気(朝→昼→夕方→夜)が切り替わる様子を、背景アセット4枚を
     // クロスフェード合成したループWebP(800×400=2:1・約465KB)。
     imageUrl: topWeatherDemo,
+    imagePos: 'center', // 風景なので左右対称に切る(左寄せだと右の山が全部消える)
+
     pagesUrl: 'https://kozakikaoru.github.io/',
     repoUrl: 'https://github.com/kozakikaoru/kozakikaoru.github.io',
     tags: ['TypeScript', 'React', 'Three.js', 'Tailwind CSS', 'Vite'],

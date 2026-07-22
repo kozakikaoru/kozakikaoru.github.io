@@ -53,21 +53,25 @@ export function MonoTag({
  * ※ className で余白を上書きしたい場合は pad={false} を渡すこと。
  *    p-6 と p-5 のような同じプロパティの衝突は、クラスの記述順ではなく
  *    生成 CSS の順序で決まるため、pad を残したままだと意図した方が負ける。
+ * ※ clip=false で overflow-hidden を外せる(Works のホバーで画像をカードの
+ *    枠外へポップさせる用)。外した側は画像等の角丸を自分で面取りすること。
  */
 export function HudCard({
   children,
   className = '',
   pad = true,
+  clip = true,
 }: {
   children: ReactNode;
   className?: string;
   pad?: boolean;
+  clip?: boolean;
 }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-white/10 bg-[#0a1526]/72 backdrop-blur-md ${
-        pad ? 'p-6' : ''
-      } ${className}`}
+      className={`relative rounded-2xl border border-white/10 bg-[#0a1526]/72 backdrop-blur-md ${
+        clip ? 'overflow-hidden' : ''
+      } ${pad ? 'p-6' : ''} ${className}`}
     >
       {/* 上辺のアクセント・ヘアライン */}
       <span
