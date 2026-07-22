@@ -4,6 +4,8 @@
 // 中身の機能を推測で書かない(捏造防止)。
 // サムネイルは GitHub の OG 自動生成画像を仮置き(★スクリーンショットが
 // 用意でき次第 imageUrl を実画像へ差し替える)。
+// 実画像を用意したものはローカルアセットを import して imageUrl に渡す。
+import engineerTutorialDemo from '../assets/works/engineer-tutorial-demo.webp';
 
 export interface Work {
   id: string;
@@ -64,7 +66,8 @@ export const WORKS: Work[] = [
     title: 'engineer_tutorial',
     summary: 'エンジニア1年生向け学習チュートリアル',
     note: 'ブラウザで読める学習コンテンツ。GitHub Pagesで公開中。',
-    imageUrl: ogImage('engineer_tutorial'),
+    // デモGIFをアニメーションWebPに変換して同梱(1.5MB→390KB・mixed圧縮で文字くっきり)。
+    imageUrl: engineerTutorialDemo,
     pagesUrl: 'https://kozakikaoru.github.io/engineer_tutorial/',
     repoUrl: 'https://github.com/kozakikaoru/engineer_tutorial',
     tags: ['JavaScript', 'HTML', 'CSS'],
