@@ -124,10 +124,17 @@ export function MilestoneItem({ milestone }: { milestone: CareerMilestone }) {
 // ------------------------------------------------------------------
 // 学校: 卒業年月(上)→ 軽めパネル(校名+学科+コメント)→ 入学年月(下)
 // ------------------------------------------------------------------
-export function SchoolItem({ school }: { school: CareerSchool }) {
+export function SchoolItem({
+  school,
+  hideEnd = false,
+}: {
+  school: CareerSchool;
+  /** 直上のラベルと1ヶ月以内で重複するとき、卒業(上)ラベルを隠す。 */
+  hideEnd?: boolean;
+}) {
   return (
     <li>
-      <DateRow date={school.end} />
+      {!hideEnd && <DateRow date={school.end} />}
       <div className="my-2.5">
         <NotePanel title={school.title} sub={school.sub} notes={school.notes} />
       </div>
@@ -139,13 +146,21 @@ export function SchoolItem({ school }: { school: CareerSchool }) {
 // ------------------------------------------------------------------
 // 案件: 終了年月(上)→ 内容カード → 開始年月(下)
 // ------------------------------------------------------------------
-export function TimelineItem({ project }: { project: CareerProject }) {
+export function TimelineItem({
+  project,
+  hideEnd = false,
+}: {
+  project: CareerProject;
+  /** 直上のラベルと1ヶ月以内で重複するとき、終了(上)ラベルを隠す。 */
+  hideEnd?: boolean;
+}) {
   const ongoing = project.status === 'ongoing';
 
   return (
     <li>
-      {/* 終了年月(進行中は「現在」)。バッジはカードの中へ(ユーザー指示) */}
-      <DateRow date={project.end} />
+      {/* 終了年月(進行中は「現在」)。バッジはカードの中へ(ユーザー指示)。
+          直上のラベルと1ヶ月以内で重複する場合は隠す(Career.tsx の hideEnd)。 */}
+      {!hideEnd && <DateRow date={project.end} />}
 
       <HudCard pad={false} className="my-2.5 p-5 sm:p-6">
         {/* 案件タイトル + 状態バッジ。
