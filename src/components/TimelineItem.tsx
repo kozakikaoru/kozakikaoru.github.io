@@ -21,6 +21,23 @@ import {
 import { Chip, HudCard, MONO } from './HudKit';
 import { SkillIcon } from './SkillIcon';
 
+/** 参画期間ラベル('YYYY.MM' の開始〜終了 →「1年4ヶ月」)。
+    月初参画・月末抜けの想定なので、開始月と終了月の両方を1ヶ月と数える(差+1)。
+    終了が非日付(進行中の '現在' 等)なら null を返す(=ラベルを出さない)。 */
+function durationLabel(start: string, end: string): string | null {
+  const s = start.match(/^(\d{4})\.(\d{2})$/);
+  const e = end.match(/^(\d{4})\.(\d{2})$/);
+  if (!s || !e) return null;
+  const months =
+    Number(e[1]) * 12 + Number(e[2]) - (Number(s[1]) * 12 + Number(s[2])) + 1;
+  if (months <= 0) return null;
+  const y = Math.floor(months / 12);
+  const m = months % 12;
+  if (y > 0 && m > 0) return `${y}年${m}ヶ月`;
+  if (y > 0) return `${y}年`;
+  return `${m}ヶ月`;
+}
+
 /** 年月ラベル行。線上のドット + 日付(+ 節目のタイトル等の後続要素)。
     日付は素のテキストのまま(ピルは不採用=ユーザーFB)。昼の明るい空でも
     読めるよう、白文字に黒の締まったハロー + 弱いアクセント光を重ねる
@@ -155,6 +172,8 @@ export function TimelineItem({
   hideEnd?: boolean;
 }) {
   const ongoing = project.status === 'ongoing';
+  // 参画期間(進行中は対象外=ユーザー指示)。タイトルの横に小さく添える。
+  const duration = ongoing ? null : durationLabel(project.start, project.end);
 
   return (
     <li>
@@ -169,6 +188,19 @@ export function TimelineItem({
           <h2 className="text-[18px] font-bold leading-[1.45] tracking-[0.01em] text-white sm:text-[20px]">
             {project.title}
           </h2>
+          {/* 参画期間(案件名の横・淡いアクセントのタグ。バッジとは別トーンで情報として添える) */}
+          {duration && (
+            <span
+              className="inline-flex items-center rounded-md px-2 py-0.5 text-[12px] font-semibold tabular-nums"
+              style={{
+                fontFamily: MONO,
+                color: 'var(--page-accent-text)',
+                background: 'color-mix(in srgb, var(--page-accent) 14%, transparent)',
+              }}
+            >
+              {duration}
+            </span>
+          )}
           {ongoing && (
             <span
               className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/40 px-2 py-0.5 text-[10px] tracking-[0.08em] text-emerald-300"
