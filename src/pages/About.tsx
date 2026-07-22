@@ -10,6 +10,7 @@ import {
   MONO,
 } from '../components/HudKit';
 import { SkillIcon } from '../components/SkillIcon';
+import { XTimeline } from '../components/XTimeline';
 import { PROFILE } from '../data/profile';
 
 // ページアクセント(panels.ts の about と同色)。
@@ -19,8 +20,10 @@ export default function About() {
   return (
     <PageShell title="プロフィール" accent={ACCENT}>
       <div className="grid gap-8 md:grid-cols-[280px_1fr]">
-        {/* ==== 左: 写真 + 基本情報 + SNS(1枚のパネルに集約)==== */}
-        <HudCard pad={false} className="self-start">
+        {/* ==== 左列: プロフィールカード + X の最新投稿 ==== */}
+        <div className="flex flex-col gap-6 self-start">
+        {/* プロフィールカード(写真 + 名前 + 肩書き + SNS + 基本情報) */}
+        <HudCard pad={false}>
           <div className="p-2">
             {PROFILE.avatarUrl ? (
               <img
@@ -100,6 +103,17 @@ export default function About() {
             </dl>
           </div>
         </HudCard>
+
+        {/* X(@kaoruby_)の最新投稿。X 公式ウィジェットで最新3件。
+            表示は X 側の箱で、未ログイン埋め込みは不安定なことがある(XTimeline 参照)。 */}
+        <HudCard>
+          <p className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
+            <IconX className="h-4 w-4" />
+            最新の投稿
+          </p>
+          <XTimeline handle="kaoruby_" limit={3} />
+        </HudCard>
+        </div>
 
         {/* ==== 右: 名前 + 自己紹介 + スキル(1枚のパネルに集約)==== */}
         <HudCard className="text-white sm:p-8">
