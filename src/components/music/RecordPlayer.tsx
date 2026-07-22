@@ -231,13 +231,17 @@ export function RecordPlayer() {
                           : undefined
                       }
                     >
-                      {/* アイコン: 通常は正方形 / 選択中は丸 / 再生中はさらに回転 */}
+                      {/* アイコン: 通常は角丸四角 / 再生中だけ丸くなって回転する。
+                          丸⇄四角は border-radius のトランジションでぬるっと変える(ユーザーFB)。
+                          丸は 20px(=40px四方の半径=真円)。border-radius はインライン style で
+                          指定する(Tailwind v4 が rounded-[20px] を生成しないケースがあったため、
+                          生成に依存しない)。reduced-motion 時は global の !important で無効化される。 */}
                       <span
                         aria-hidden="true"
-                        className={`h-10 w-10 shrink-0 overflow-hidden border border-white/15 ${
-                          active ? 'rounded-full' : 'rounded-md'
-                        }`}
+                        className="h-10 w-10 shrink-0 overflow-hidden border border-white/15"
                         style={{
+                          borderRadius: spinning ? '20px' : '6px',
+                          transition: 'border-radius 300ms ease-out',
                           boxShadow: active ? `0 0 8px ${t.art.glow}66` : 'none',
                           animation: spinning ? 'rp-spin 4s linear infinite' : 'none',
                         }}
