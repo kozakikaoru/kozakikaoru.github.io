@@ -27,8 +27,8 @@ export default function Works() {
   return (
     <PageShell title="個人開発" accent={ACCENT}>
       <div className="grid gap-6 sm:grid-cols-2">
-        {WORKS.map((w) => (
-          <WorkCard key={w.id} work={w} />
+        {WORKS.map((w, i) => (
+          <WorkCard key={w.id} work={w} index={i} />
         ))}
       </div>
     </PageShell>
@@ -36,14 +36,21 @@ export default function Works() {
 }
 
 /** プロダクト1件ぶんのカード。 */
-function WorkCard({ work }: { work: Work }) {
+function WorkCard({ work, index }: { work: Work; index: number }) {
   // OG 画像の取得に失敗したらグラデーションのフォールバックへ切り替える。
   const [imgFailed, setImgFailed] = useState(false);
+  // 拡大の原点を列の外側に固定し、画面端へはみ出さないようにする(2 カラム時)。
+  // 左列(偶数 index)は左端を固定して内側=右へ、右列は右端を固定して内側=左へ伸びる。
+  // SP は 1 カラム & hover 無しなので影響しない。
+  const originClass = index % 2 === 0 ? 'sm:origin-left' : 'sm:origin-right';
 
   return (
     <HudCard
       pad={false}
-      className="group flex flex-col transition-transform duration-300 motion-safe:hover:-translate-y-1"
+      // ホバー時は「画像だけ拡大」だと overflow-hidden の枠内で端が見切れる(ユーザーFB)。
+      // 代わりにカードごと拡大し、前面(z)へ持ち上げて影で浮かせる。画像は枠と一緒に
+      // 等倍で大きくなるので見切れない。hover が無い SP と reduced-motion では無効。
+      className={`group relative z-0 flex flex-col transition-[transform,box-shadow] duration-300 ease-out ${originClass} sm:hover:z-30 sm:motion-safe:hover:scale-[1.4] sm:motion-safe:hover:shadow-[0_24px_60px_-12px_rgba(0,0,0,0.65)]`}
     >
       {/* サムネイル(GitHub OG 画像は 1200×600 = 2:1)。
           暗スクリムは掛けず、内側のヘアラインで額装して画像を主役にする。 */}
@@ -63,9 +70,9 @@ function WorkCard({ work }: { work: Work }) {
             alt={`${work.title}のサムネイル`}
             loading="lazy"
             onError={() => setImgFailed(true)}
-            // motion-safe を必ず付ける。共通の reduced-motion 対応は duration を
-            // 潰すだけなので、付けないと拡大だけ即座に起きてカクつく。
-            className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.04]"
+            // 拡大はカード側(HudCard)で行う。画像を単独でズームすると overflow-hidden の
+            // 枠内で端が見切れるため、ここでは等倍のまま置く。
+            className="h-full w-full object-cover"
           />
         )}
         {/* 額装の内側ヘアライン(画像とカードの境目を締める) */}
