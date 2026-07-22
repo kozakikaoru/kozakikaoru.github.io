@@ -88,7 +88,9 @@ export function RecordPlayer() {
       <style>{`@keyframes rp-spin { to { transform: rotate(360deg); } }`}</style>
 
       <HudCard pad={false}>
-        <div className="grid md:grid-cols-[316px_minmax(0,1fr)]">
+        {/* 左カラム(アート+操作)は 400px(main の max-w-6xl 化に合わせて
+            316px から拡大=ユーザー指示「プレイヤーを大きく」)。 */}
+        <div className="grid md:grid-cols-[400px_minmax(0,1fr)]">
           {/* ==== 左: アート + 曲名 + シーク + 操作 ==== */}
           <div className="flex flex-col border-b border-white/10 bg-[#0a0f1a] md:border-b-0 md:border-r">
             {/* 正方形の大きなアート(静止・枠なし・列いっぱい)。カードの overflow-hidden が角丸を担う。 */}

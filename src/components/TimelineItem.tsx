@@ -41,10 +41,14 @@ function durationLabel(start: string, end: string): string | null {
 /** 年月ラベル行。線上のドット + 日付(+ 節目のタイトル等の後続要素)。
     日付は素のテキストのまま(ピルは不採用=ユーザーFB)。昼の明るい空でも
     読めるよう、白文字に黒の締まったハロー + 弱いアクセント光を重ねる
-    (h1 の「色と黒の影」の小型版)。 */
+    (h1 の「色と黒の影」の小型版)。
+    PC(sm+)では日付を線の左側に出す(ユーザー指示)。absolute で流れから
+    外すため、日付だけの行が潰れないよう sm:min-h-5 で高さを確保する。
+    right の 36px = ol の pl-6(24px)+ 線から日付までの隙間 12px。
+    SP は今までどおり線の右(流れの中)。 */
 function DateRow({ date, children }: { date: string; children?: ReactNode }) {
   return (
-    <div className="relative flex flex-wrap items-center gap-x-2.5 gap-y-1">
+    <div className="relative flex flex-wrap items-center gap-x-2.5 gap-y-1 sm:min-h-5">
       {/* 線上のドット(連続線に打つ目印) */}
       <span
         aria-hidden="true"
@@ -56,7 +60,7 @@ function DateRow({ date, children }: { date: string; children?: ReactNode }) {
         }}
       />
       <time
-        className="text-[13px] font-bold tracking-[0.14em] tabular-nums text-white/95"
+        className="text-[13px] font-bold tracking-[0.14em] tabular-nums text-white/95 sm:absolute sm:right-[calc(100%+36px)] sm:top-1/2 sm:-translate-y-1/2 sm:whitespace-nowrap"
         style={{
           fontFamily: MONO,
           textShadow:

@@ -45,7 +45,7 @@ export function PageShell({
 }: PageShellProps) {
   return (
     <main
-      className="relative z-10 mx-auto min-h-screen w-full max-w-5xl px-4 pb-16 pt-28 sm:px-6 sm:pt-32"
+      className="relative z-10 mx-auto min-h-screen w-full max-w-6xl px-4 pb-16 pt-28 sm:px-6 sm:pt-32"
       style={
         {
           '--page-accent': accent,

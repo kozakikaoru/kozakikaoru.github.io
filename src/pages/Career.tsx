@@ -107,9 +107,11 @@ export default function Career() {
   return (
     <PageShell title="経歴" accent={ACCENT}>
       {/* タイムライン。1本の連続した縦線(border-l)を全項目が共有する。
-          pl の値は TimelineItem のドット位置(-left-[25px]/sm:-29px)と対。 */}
+          pl の値は TimelineItem のドット位置(-left-[25px]/sm:-29px)と対。
+          sm+ は年月ラベルが線の左側に出る(DateRow の absolute 配置)ため、
+          sm:ml-24 で左に置き場を確保する。SP は今までどおり線の右。 */}
       <ol
-        className="ml-1 space-y-6 border-l-2 pl-5 sm:space-y-7 sm:pl-6"
+        className="ml-1 space-y-6 border-l-2 pl-5 sm:ml-24 sm:space-y-7 sm:pl-6"
         style={{
           borderColor: 'color-mix(in srgb, var(--page-accent) 42%, transparent)',
         }}
