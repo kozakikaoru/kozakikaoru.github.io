@@ -5,6 +5,7 @@
 // サムネイルは GitHub の OG 自動生成画像を仮置き(★スクリーンショットが
 // 用意でき次第 imageUrl を実画像へ差し替える)。
 // 実画像を用意したものはローカルアセットを import して imageUrl に渡す。
+import claudeCodeTutorialDemo from '../assets/works/claude-code-tutorial-demo.webp';
 import engineerTutorialDemo from '../assets/works/engineer-tutorial-demo.webp';
 import topPageDemo from '../assets/works/top-page-demo.mp4';
 
@@ -84,7 +85,8 @@ export const WORKS: Work[] = [
     title: 'claude_code_tutorial',
     summary: 'Claude Codeチュートリアル',
     note: 'MDXで書かれたドキュメントサイト。GitHub Pagesで公開中。',
-    imageUrl: ogImage('claude_code_tutorial'),
+    // デモGIFをアニメーションWebPに変換して同梱(2.6MB→764KB・mixed圧縮)。
+    imageUrl: claudeCodeTutorialDemo,
     pagesUrl: 'https://kozakikaoru.github.io/claude_code_tutorial/',
     repoUrl: 'https://github.com/kozakikaoru/claude_code_tutorial',
     tags: ['Astro', 'MDX', 'TypeScript', 'CSS'],
