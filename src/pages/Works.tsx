@@ -51,7 +51,19 @@ function WorkCard({ work }: { work: Work }) {
           (ユーザー指示)。あふれる分は object-position(既定 left)で右側を切る。
           暗スクリムは掛けず、内側のヘアラインで額装して画像を主役にする。 */}
       <div className="relative aspect-video w-full overflow-hidden">
-        {imgFailed ? (
+        {work.videoUrl ? (
+          // デモ動画(GIF代わりのmp4)。無音+autoPlay+playsInlineでスマホでも
+          // GIFと同じ見え方になる。読み上げには aria-label で名前を渡す。
+          <video
+            src={work.videoUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            aria-label={`${work.title}のデモ動画`}
+            className="h-full w-full object-cover"
+          />
+        ) : imgFailed ? (
           <div
             className="h-full w-full"
             style={{

@@ -6,7 +6,7 @@
 // 用意でき次第 imageUrl を実画像へ差し替える)。
 // 実画像を用意したものはローカルアセットを import して imageUrl に渡す。
 import engineerTutorialDemo from '../assets/works/engineer-tutorial-demo.webp';
-import topPageDemo from '../assets/works/top-page-demo.webp';
+import topPageDemo from '../assets/works/top-page-demo.mp4';
 
 export interface Work {
   id: string;
@@ -20,6 +20,9 @@ export interface Work {
   /** サムネイルの切り出し位置(CSS object-position)。2:1 素材を 16:9 枠で
       使うため左右が切れる。未指定は 'left center'(OG のリポジトリ名を守る)。 */
   imagePos?: string;
+  /** デモ動画(mp4)。指定するとサムネイルの代わりに無音・自動再生・ループの
+      <video> を出す(アニメWebPより動きの圧縮が効き、高画質でも軽いため)。 */
+  videoUrl?: string;
   /** GitHub Pages の公開 URL。無いものはリポジトリのみ公開。 */
   pagesUrl?: string;
   /** GitHub リポジトリ URL。 */
@@ -110,9 +113,12 @@ export const WORKS: Work[] = [
     summary: '個人HP(このサイト)',
     note: 'React + TypeScript + Three.js製。いま見ているサイトです。',
     // トップページの実録画(静止画の切替ではない=ユーザー指示)。ヘッドレス
-    // ChromeのCDP screencastで、パネルの浮遊と時間帯の実クロスフェードを
-    // 15fps収録→10fps・1.2倍速のループWebPに(680×383≒16:9・約10秒・1.4MB)。
-    imageUrl: topPageDemo,
+    // ChromeのCDP screencastでパネルの浮遊と時間帯の実クロスフェードを収録し、
+    // H.264 mp4化(1080×608・15fps・1.2倍速・約10秒ループ・1.5MB)。
+    // アニメWebP(680px・1.4MB)は画質が悪くmp4へ移行(ユーザーFB)。
+    // imageUrl は video 非対応環境向けのフォールバック。
+    imageUrl: ogImage('kozakikaoru.github.io'),
+    videoUrl: topPageDemo,
 
     pagesUrl: 'https://kozakikaoru.github.io/',
     repoUrl: 'https://github.com/kozakikaoru/kozakikaoru.github.io',
