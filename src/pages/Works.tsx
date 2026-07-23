@@ -43,9 +43,10 @@ function WorkCard({ work }: { work: Work }) {
   return (
     <HudCard
       pad={false}
-      // ホバーはカードがちょっと持ち上がるだけ(最初のシンプル路線に戻す=ユーザーFB。
-      // 画像ポップ・カード拡大・発光リングは試作の末すべて撤回)。
-      className="group flex flex-col transition-transform duration-300 motion-safe:hover:-translate-y-1"
+      // ホバーはその場で1.1倍にふわっと拡大(ユーザー指示)。原点は既定の中心の
+      // まま=端へ寄せない。1.1倍なら最小幅でもビューポートからはみ出さない。
+      // 拡大中は hover:z-30 で隣のカードの上に出す。
+      className="group flex flex-col transition-transform duration-300 hover:z-30 motion-safe:hover:scale-110"
     >
       {/* サムネイル。素材は 2:1(GitHub OG / 自作 WebP)だが枠は 16:9 に縦伸ばし
           (ユーザー指示)。あふれる分は object-position(既定 left)で右側を切る。
