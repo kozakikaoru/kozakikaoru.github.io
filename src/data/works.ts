@@ -109,9 +109,9 @@ export const WORKS: Work[] = [
     title: 'kozakikaoru.github.io',
     summary: '個人HP(このサイト)',
     note: 'React + TypeScript + Three.js製。いま見ているサイトです。',
-    // 実際のトップページ(3D HUDパネル込み)をヘッドレスChromeで時間帯ごとに
-    // キャプチャし、ふわっとしたクロスフェードで繋いだループWebP。
-    // 960×540=16:9(枠と同比率なので切れない)・各3秒ホールド・約854KB。
+    // トップページの実録画(静止画の切替ではない=ユーザー指示)。ヘッドレス
+    // ChromeのCDP screencastで、パネルの浮遊と時間帯の実クロスフェードを
+    // 15fps収録→10fps・1.2倍速のループWebPに(680×383≒16:9・約10秒・1.4MB)。
     imageUrl: topPageDemo,
 
     pagesUrl: 'https://kozakikaoru.github.io/',
