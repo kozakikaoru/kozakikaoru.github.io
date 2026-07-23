@@ -6,7 +6,7 @@
 // 用意でき次第 imageUrl を実画像へ差し替える)。
 // 実画像を用意したものはローカルアセットを import して imageUrl に渡す。
 import engineerTutorialDemo from '../assets/works/engineer-tutorial-demo.webp';
-import topWeatherDemo from '../assets/works/top-weather-demo.webp';
+import topPageDemo from '../assets/works/top-page-demo.webp';
 
 export interface Work {
   id: string;
@@ -109,10 +109,10 @@ export const WORKS: Work[] = [
     title: 'kozakikaoru.github.io',
     summary: '個人HP(このサイト)',
     note: 'React + TypeScript + Three.js製。いま見ているサイトです。',
-    // トップページの天気(朝→昼→夕方→夜)が切り替わる様子を、背景アセット4枚を
-    // クロスフェード合成したループWebP(800×400=2:1・約465KB)。
-    imageUrl: topWeatherDemo,
-    imagePos: 'center', // 風景なので左右対称に切る(左寄せだと右の山が全部消える)
+    // 実際のトップページ(3D HUDパネル込み)をヘッドレスChromeで時間帯ごとに
+    // キャプチャし、ふわっとしたクロスフェードで繋いだループWebP。
+    // 960×540=16:9(枠と同比率なので切れない)・各3秒ホールド・約854KB。
+    imageUrl: topPageDemo,
 
     pagesUrl: 'https://kozakikaoru.github.io/',
     repoUrl: 'https://github.com/kozakikaoru/kozakikaoru.github.io',
