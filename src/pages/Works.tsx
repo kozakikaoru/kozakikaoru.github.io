@@ -49,10 +49,14 @@ function WorkCard({ work, index }: { work: Work; index: number }) {
     <HudCard
       pad={false}
       clip={false}
-      // ホバーは「カードごと拡大」だと文字・リンクまで大きくなる(ユーザーFB)。
-      // 文字は等倍のまま、画像だけをカードの枠外へぬるっとポップさせる方式に変更。
+      // ホバーの設計(ユーザーFBの積み重ね):
+      //   - 「カードごと拡大」は文字・リンクまで大きくなるので不可
+      //   - 「画像だけポップ」は下の要素が置いていかれるので不足
+      //   → 画像はポップ + カード全体(下の情報ごと)は持ち上げ(translate)。
+      //     translate は文字サイズを変えないので両立できる。
+      // あわせてアクセント色のリングがふわっと灯る(HUD の起動っぽい演出)。
       // clip=false で HudCard の切り抜きを外し、角丸は画像ラッパー側で面取りする。
-      className="group relative flex flex-col"
+      className="group relative flex flex-col transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:motion-safe:hover:-translate-y-2 sm:motion-safe:hover:shadow-[0_24px_48px_-16px_rgba(0,0,0,0.6)]"
     >
       {/* サムネイル。素材は 2:1(GitHub OG / 自作 WebP)だが枠は 16:9 に縦伸ばし
           (ユーザー指示)。あふれる分は object-position(既定 left)で右側を切る。
@@ -148,6 +152,19 @@ function WorkCard({ work, index }: { work: Work; index: number }) {
           </a>
         </div>
       </div>
+
+      {/* ホバーで灯るアクセントのリング(HUD 起動演出)。枠線+弱い発光を
+          カード全面に重ね、opacity だけをふわっと遷移させる。 */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 sm:group-hover:opacity-100"
+        style={{
+          border:
+            '1px solid color-mix(in srgb, var(--page-accent) 55%, transparent)',
+          boxShadow:
+            '0 0 24px -4px color-mix(in srgb, var(--page-accent) 35%, transparent)',
+        }}
+      />
     </HudCard>
   );
 }
