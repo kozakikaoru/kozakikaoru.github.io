@@ -5,7 +5,9 @@
 // サムネイルは GitHub の OG 自動生成画像を仮置き(★スクリーンショットが
 // 用意でき次第 imageUrl を実画像へ差し替える)。
 // 実画像を用意したものはローカルアセットを import して imageUrl に渡す。
+import careerAdvisorDemo from '../assets/works/career-advisor-demo.mp4';
 import claudeCodeTutorialDemo from '../assets/works/claude-code-tutorial-demo.webp';
+import cornerCutReversiDemo from '../assets/works/corner-cut-reversi-demo.webp';
 import engineerTutorialDemo from '../assets/works/engineer-tutorial-demo.webp';
 import topPageDemo from '../assets/works/top-page-demo.mp4';
 
@@ -54,7 +56,10 @@ export const WORKS: Work[] = [
     title: 'corner_cut_reversi_eval',
     summary: '異形オセロシミュレーター（対戦・評価値計算）',
     note: 'TypeScript製のWebアプリ。GitHub Pagesで公開中。',
-    imageUrl: ogImage('corner_cut_reversi_eval'),
+    // デモGIF(2:1)をWebP化して同梱(122KB→36KB)。盤面が中央にあり左右は
+    // 暗い余白なので、16:9枠では中央クロップ(切れるのは余白だけ)。
+    imageUrl: cornerCutReversiDemo,
+    imagePos: 'center',
     pagesUrl: 'https://kozakikaoru.github.io/corner_cut_reversi_eval/',
     repoUrl: 'https://github.com/kozakikaoru/corner_cut_reversi_eval',
     tags: ['TypeScript', 'Vite', 'CSS'],
@@ -96,7 +101,11 @@ export const WORKS: Work[] = [
     title: 'career_advisor',
     summary: '進路提案Webアプリ',
     note: 'TypeScript製のWebアプリ。リポジトリのみ公開。',
+    // ユーザー撮影の画面録画(1920×1080/30fps/音声あり)を、1280×720・無音・
+    // H.264 に最適化(13MB→1.0MB)。16:9なので枠にぴったり=切り抜きなし。
+    // imageUrl は video 非対応環境向けのフォールバック。
     imageUrl: ogImage('career_advisor'),
+    videoUrl: careerAdvisorDemo,
     repoUrl: 'https://github.com/kozakikaoru/career_advisor',
     tags: ['TypeScript', 'Next.js', 'React', 'Tailwind CSS'],
   },
